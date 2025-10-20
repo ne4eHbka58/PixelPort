@@ -1,0 +1,6 @@
+@PixelPort.Server_HostAddress = http://localhost:5038
+
+GET {{PixelPort.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
