@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using PixelPort.Server.Data;
 using PixelPort.Server.Models;
 using PixelPort.Server.Models.DTO;
+using PixelPort.Server.Repository;
+using PixelPort.Server.Repository.IRepository;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -14,16 +16,15 @@ namespace PixelPort.Server.Controllers
     [Route("api/ProductAPI")]
     public class ProductAPIController : ControllerBase
     {
-
-        private readonly PixelPortDbContext _db;
+        private readonly IProductRepository _dbProduct;
 
         private readonly ILogger<ProductAPIController> _logger;
 
         private readonly IMapper _mapper;
 
-        public ProductAPIController(PixelPortDbContext db, ILogger<ProductAPIController> logger, IMapper mapper)
+        public ProductAPIController(IProductRepository dbProduct, ILogger<ProductAPIController> logger, IMapper mapper)
         {
-            _db = db;
+            _dbProduct = dbProduct;
             _logger = logger;
             _mapper = mapper;
         }
@@ -36,7 +37,7 @@ namespace PixelPort.Server.Controllers
         {
             try // Получаем все товары
             {
-                IEnumerable<Product> productsList = await _db.Products.AsNoTracking().ToListAsync();
+                IEnumerable<Product> productsList = await _dbProduct.GetAllAsync();
 
                 _logger.LogInformation("Getting all products");
 
@@ -66,7 +67,7 @@ namespace PixelPort.Server.Controllers
 
             try // Ищем товар
             {
-                Product product = await _db.Products.AsNoTracking().FirstOrDefaultAsync(p => p.Id == id);
+                Product product = await _dbProduct.GetAsync(p => p.Id == id, false);
 
                 if (product == null) // Не найден
                 {
@@ -96,14 +97,13 @@ namespace PixelPort.Server.Controllers
         {
             try
             {
-
                 if (tempCreateProduct == null) // Попытка создать пустой товар
                 {
                     _logger.LogInformation($"ERROR: Create Product - Empty Product");
 
                     return StatusCode(400);
                 }
-                else if (await _db.Products.FirstOrDefaultAsync(p => p.ProductName.ToLower() == tempCreateProduct.ProductName.ToLower()) != null) // Попытка создать товар с уже существующим именем
+                else if (await _dbProduct.GetAsync(p => p.ProductName.ToLower() == tempCreateProduct.ProductName.ToLower()) != null) // Попытка создать товар с уже существующим именем
                 {
                     _logger.LogInformation($"ERROR: Create Product - product with same name");
 
@@ -113,8 +113,7 @@ namespace PixelPort.Server.Controllers
                 {
                     Product model = _mapper.Map<Product>(tempCreateProduct); // Маппим товар
 
-                    await _db.Products.AddAsync(model);
-                    await _db.SaveChangesAsync();
+                    await _dbProduct.CreateAsync(model);
 
                     _logger.LogInformation($"Creating Product");
 
@@ -147,7 +146,7 @@ namespace PixelPort.Server.Controllers
 
             try
             {
-                var result = await _db.Products.FirstOrDefaultAsync(p => p.Id == id);
+                var result = await _dbProduct.GetAsync(p => p.Id == id);
                 if (result == null) // Не найден
                 {
                     _logger.LogInformation($"ERROR: Delete Product with Id = {id}");
@@ -155,8 +154,7 @@ namespace PixelPort.Server.Controllers
                     return StatusCode(404);
                 }
 
-                _db.Products.Remove(result);
-                await _db.SaveChangesAsync();
+                await _dbProduct.RemoveAsync(result);
 
                 _logger.LogInformation($"Deleting Product with Id = {id}");
 
@@ -187,9 +185,9 @@ namespace PixelPort.Server.Controllers
                     return StatusCode(400);
                 }
 
-                var existingProduct = await _db.Products // Ищем товар
-                   .Include(p => p.Characteristics)
-                   .FirstOrDefaultAsync(p => p.Id == id);
+                var existingProduct = await _dbProduct.GetWithCharacteristicsAsync( // Ищем товар
+                    p => p.Id == id
+                );
 
                 if (existingProduct == null) // Если пустой, то возвращаем 404
                 {
@@ -198,20 +196,14 @@ namespace PixelPort.Server.Controllers
 
                 _mapper.Map(updateTempProduct, existingProduct); // Маппим основные свойства (без характеристик)
 
-                // Удаляем старые характеристики
-                if (existingProduct.Characteristics != null)
-                {
-                    _db.ProductCharacteristics.RemoveRange(existingProduct.Characteristics);
-                }
 
-                // Добавляем новые
-                if (updateTempProduct.Characteristics != null)
-                {
-                    existingProduct.Characteristics = updateTempProduct.Characteristics.Select(c =>
-                        _mapper.Map<ProductCharacteristic>(c)).ToList();
-                }
+                // Маппим характеристики
+                var newCharacteristics = updateTempProduct.Characteristics?
+                    .Select(c => _mapper.Map<ProductCharacteristic>(c))
+                    .ToList();
 
-                await _db.SaveChangesAsync();
+
+                await _dbProduct.UpdateWithCharacteristicsAsync(existingProduct, newCharacteristics);
 
                 _logger.LogInformation($"Update Product with Id = {id}");
 
