@@ -37,7 +37,7 @@ namespace PixelPort.Server.Controllers
         {
             try // Получаем все товары
             {
-                IEnumerable<Product> productsList = await _dbProduct.GetAllAsync();
+                IEnumerable<Product> productsList = await _dbProduct.GetAllWithDetailsAsync();
 
                 _logger.LogInformation("Getting all products");
 
@@ -67,7 +67,7 @@ namespace PixelPort.Server.Controllers
 
             try // Ищем товар
             {
-                Product product = await _dbProduct.GetAsync(p => p.Id == id, false);
+                Product product = await _dbProduct.GetWithDetailsAsync(p => p.Id == id, false);
 
                 if (product == null) // Не найден
                 {
@@ -146,7 +146,7 @@ namespace PixelPort.Server.Controllers
 
             try
             {
-                var result = await _dbProduct.GetAsync(p => p.Id == id);
+                var result = await _dbProduct.GetWithDetailsAsync(p => p.Id == id);
                 if (result == null) // Не найден
                 {
                     _logger.LogInformation($"ERROR: Delete Product with Id = {id}");
@@ -185,7 +185,7 @@ namespace PixelPort.Server.Controllers
                     return StatusCode(400);
                 }
 
-                var existingProduct = await _dbProduct.GetWithCharacteristicsAsync( // Ищем товар
+                var existingProduct = await _dbProduct.GetWithDetailsAsync( // Ищем товар
                     p => p.Id == id
                 );
 

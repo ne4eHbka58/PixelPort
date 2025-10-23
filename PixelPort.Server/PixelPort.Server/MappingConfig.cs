@@ -22,7 +22,12 @@ namespace PixelPort.Server
                 .ForMember(dest => dest.Characteristics, opt => opt.Ignore()) // Игнорируем характеристики
                 .ForMember(dest => dest.UpdatedDate, opt => opt.MapFrom(src => DateTime.Now));
 
-            CreateMap<Product, ProductResponseDTO>().ReverseMap();
+            CreateMap<Product, ProductResponseDTO>()
+                .ForMember(dest => dest.CategoryName, opt => opt.MapFrom(src => src.Category.CategoryName))
+                .ForMember(dest => dest.ManufacturerName, opt => opt.MapFrom(src => src.Manufacturer.ManufacturerName));
+
+            CreateMap<ProductResponseDTO, Product>();
+
 
             CreateMap<ProductCharacteristic, ProductCharacteristicCreateDTO>().ReverseMap();
             CreateMap<ProductCharacteristic, ProductCharacteristicResponseDTO>().ReverseMap();

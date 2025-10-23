@@ -36,10 +36,32 @@ namespace PixelPort.Server.Repository
             _db.Products.Update(product);
             await _db.SaveChangesAsync();
         }
-
-        public async Task<Product> GetWithCharacteristicsAsync(Expression<Func<Product, bool>> filter, bool tracked = true)
+        public async Task<List<Product>> GetAllWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true)
         {
-            IQueryable<Product> query = _db.Products.Include(p => p.Characteristics);
+            IQueryable<Product> query = _db.Products
+                .Include(p => p.Category)
+                .Include(p => p.Manufacturer)
+                .Include(p => p.Characteristics);
+
+            if (!tracked)
+            {
+                query = query.AsNoTracking();
+            }
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+            return await query.ToListAsync();
+        }
+
+        public async Task<Product> GetWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true)
+        {
+            IQueryable<Product> query = _db.Products
+                .Include(p => p.Category)
+                .Include(p => p.Manufacturer)
+                .Include(p => p.Characteristics); 
 
             if (!tracked)
             {
@@ -53,6 +75,5 @@ namespace PixelPort.Server.Repository
 
             return await query.FirstOrDefaultAsync();
         }
-
     }
 }
