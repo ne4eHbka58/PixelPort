@@ -15,10 +15,14 @@ namespace PixelPort.Server.Repository
             _db = db;
             this.dbSet = _db.Set<T>();
         }
-        public async Task CreateAsync(T entity)
+        public async Task<T> CreateAsync(T entity)
         {
             await dbSet.AddAsync(entity);
             await SaveAsync();
+
+            // Перезагружаем с базы
+            await _db.Entry(entity).ReloadAsync();
+            return entity;
         }
 
         public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true)

@@ -15,7 +15,7 @@ namespace PixelPort.Server.Repository
             _db = db;
         }
        
-        public async Task UpdateWithCharacteristicsAsync(Product product, List<ProductCharacteristic>? characteristics)
+        public async Task<Product> UpdateWithCharacteristicsAsync(Product product, List<ProductCharacteristic>? characteristics)
         {
             // Удаляем старые характеристики
             var existingCharacteristics = _db.ProductCharacteristics.Where(pc => pc.ProductId == product.Id);
@@ -29,12 +29,17 @@ namespace PixelPort.Server.Repository
                     characteristic.ProductId = product.Id;
                 }
                 await _db.ProductCharacteristics.AddRangeAsync(characteristics);
+
             }
 
             // Обновляем продукт
            product.UpdatedDate = DateTime.Now;
             _db.Products.Update(product);
             await _db.SaveChangesAsync();
+
+            // Перезагружаем с базы
+            await _db.Entry(product).ReloadAsync();
+            return product;
         }
         public async Task<List<Product>> GetAllWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true)
         {

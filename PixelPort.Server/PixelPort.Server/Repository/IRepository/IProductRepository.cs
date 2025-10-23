@@ -8,6 +8,6 @@ namespace PixelPort.Server.Repository.IRepository
     {
         Task<List<Product>> GetAllWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true);
         Task<Product> GetWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true);
-        Task UpdateWithCharacteristicsAsync(Product product, List<ProductCharacteristic>? characteristics);
+        Task<Product> UpdateWithCharacteristicsAsync(Product product, List<ProductCharacteristic>? characteristics);
     }
 }

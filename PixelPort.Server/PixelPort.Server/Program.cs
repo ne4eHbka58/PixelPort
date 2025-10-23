@@ -14,6 +14,7 @@ builder.Services.AddDbContext<PixelPortDbContext>(option =>
     option.UseSqlServer(builder.Configuration.GetConnectionString("DefaultSqlConnection"));
 });
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductCharacteristicRepository, ProductCharacteristicRepository>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

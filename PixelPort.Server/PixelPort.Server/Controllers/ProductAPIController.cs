@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PixelPort.Server.Data;
 using PixelPort.Server.Models;
+using PixelPort.Server.Models.Dto;
 using PixelPort.Server.Models.DTO;
 using PixelPort.Server.Repository;
 using PixelPort.Server.Repository.IRepository;
@@ -51,32 +52,32 @@ namespace PixelPort.Server.Controllers
             }
         }
 
-        [HttpGet("{id:int}", Name = "GetProduct")]
+        [HttpGet("{productId:int}", Name = "GetProduct")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ProductResponseDTO>> GetProduct(int id)
+        public async Task<ActionResult<ProductResponseDTO>> GetProduct(int productId)
         {
-            if (id == 0) // Product.id = 0
+            if (productId == 0) // Product.id = 0
             {
-                _logger.LogInformation($"ERROR: Get Product with Id = {id}");
+                _logger.LogInformation($"ERROR: Get Product with Id = {productId}");
 
                 return StatusCode(400);
             }
 
             try // Ищем товар
             {
-                Product product = await _dbProduct.GetWithDetailsAsync(p => p.Id == id, false);
+                Product product = await _dbProduct.GetWithDetailsAsync(p => p.Id == productId, false);
 
                 if (product == null) // Не найден
                 {
-                    _logger.LogInformation($"ERROR: Get Product with Id = {id} - NotFound");
+                    _logger.LogInformation($"ERROR: Get Product with Id = {productId} - NotFound");
 
                     return StatusCode(404);
                 }
 
-                _logger.LogInformation($"Getting Product with Id = {id}");
+                _logger.LogInformation($"Getting Product with Id = {productId}");
 
                 return StatusCode(200, _mapper.Map<ProductResponseDTO>(product));
             }
@@ -103,7 +104,7 @@ namespace PixelPort.Server.Controllers
 
                     return StatusCode(400);
                 }
-                else if (await _dbProduct.GetAsync(p => p.ProductName.ToLower() == tempCreateProduct.ProductName.ToLower()) != null) // Попытка создать товар с уже существующим именем
+                else if (await _dbProduct.GetAsync(p => p.ProductName.ToLower() == tempCreateProduct.ProductName.ToLower()) != null) // Попытка создать товар с уже существующим названием
                 {
                     _logger.LogInformation($"ERROR: Create Product - product with same name");
 
@@ -113,11 +114,12 @@ namespace PixelPort.Server.Controllers
                 {
                     Product model = _mapper.Map<Product>(tempCreateProduct); // Маппим товар
 
-                    await _dbProduct.CreateAsync(model);
+                    var responseModel = await _dbProduct.CreateAsync(model); // Создаём товар
+                    var responseDto = _mapper.Map<ProductResponseDTO>(responseModel); // Маппим ответ
 
                     _logger.LogInformation($"Creating Product");
 
-                    return StatusCode(201, tempCreateProduct);
+                    return StatusCode(201, responseDto);
                 }
 
             }
@@ -130,33 +132,33 @@ namespace PixelPort.Server.Controllers
             }
         }
 
-        [HttpDelete("{id:int}", Name = "DeleteProduct")]
+        [HttpDelete("{productId:int}", Name = "DeleteProduct")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> DeleteProduct(int id)
+        public async Task<ActionResult> DeleteProduct(int productId)
         {
-            if (id == 0) // Product.Id = 0
+            if (productId == 0) // Product.Id = 0
             {
-                _logger.LogInformation($"ERROR: Delete Product with id = 0");
+                _logger.LogInformation($"ERROR: Delete Product with productId = 0");
 
                 return StatusCode(400);
             }
 
             try
             {
-                var result = await _dbProduct.GetWithDetailsAsync(p => p.Id == id);
+                var result = await _dbProduct.GetWithDetailsAsync(p => p.Id == productId);
                 if (result == null) // Не найден
                 {
-                    _logger.LogInformation($"ERROR: Delete Product with Id = {id}");
+                    _logger.LogInformation($"ERROR: Delete Product with Id = {productId}");
 
                     return StatusCode(404);
                 }
 
                 await _dbProduct.RemoveAsync(result);
 
-                _logger.LogInformation($"Deleting Product with Id = {id}");
+                _logger.LogInformation($"Deleting Product with Id = {productId}");
 
                 return StatusCode(200);
             }
@@ -169,24 +171,24 @@ namespace PixelPort.Server.Controllers
             }
         }
 
-        [HttpPut("{id:int}", Name = "UpdateProduct")]
+        [HttpPut("{productId:int}", Name = "UpdateProduct")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public async Task<ActionResult> UpdateProduct(int id, [FromBody] ProductUpdateDTO updateTempProduct) {
+        public async Task<ActionResult<ProductResponseDTO>> UpdateProduct(int productId, [FromBody] ProductUpdateDTO updateTempProduct) {
 
             try
             {
-                if (updateTempProduct == null || id != updateTempProduct.Id) // Пустой товар или айди не равен переданному в теле запроса
+                if (updateTempProduct == null || productId != updateTempProduct.Id) // Пустой товар или айди не равен переданному в теле запроса
                 {
-                    _logger.LogInformation($"ERROR: Update Product with Id = {id} - Empty product or id != product.Id");
+                    _logger.LogInformation($"ERROR: Update Product with Id = {productId} - Empty product or productId != product.Id");
 
                     return StatusCode(400);
                 }
 
                 var existingProduct = await _dbProduct.GetWithDetailsAsync( // Ищем товар
-                    p => p.Id == id
+                    p => p.Id == productId
                 );
 
                 if (existingProduct == null) // Если пустой, то возвращаем 404
@@ -202,17 +204,17 @@ namespace PixelPort.Server.Controllers
                     .Select(c => _mapper.Map<ProductCharacteristic>(c))
                     .ToList();
 
+                var responseModel = await _dbProduct.UpdateWithCharacteristicsAsync(existingProduct, newCharacteristics); // Обновляем товар
+                var responseDto = _mapper.Map<ProductResponseDTO>(responseModel); // Маппим ответ
 
-                await _dbProduct.UpdateWithCharacteristicsAsync(existingProduct, newCharacteristics);
+                _logger.LogInformation($"Update Product with Id = {productId}");
 
-                _logger.LogInformation($"Update Product with Id = {id}");
-
-                return StatusCode(200);
+                return StatusCode(200, responseDto);
             }
 
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Update Product with Id = {id} - {ex.Message}");
+                _logger.LogInformation($"ERROR: Update Product with Id = {productId} - {ex.Message}");
 
                 return StatusCode(500);
             }
