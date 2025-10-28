@@ -6,7 +6,14 @@ namespace PixelPort.Server.Repository.IRepository
 {
     public interface IProductRepository : IRepository<Product>
     {
-        Task<List<Product>> GetAllWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true);
+        Task<List<Product>> GetAllWithDetailsAsync(string search = null,
+            int? categoryId = null,
+            int? manufacturerId = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null,
+            string sortBy = "name",
+            bool sortDesc = false,
+            bool tracked = true);
         Task<Product> GetWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true);
         Task<Product> UpdateWithCharacteristicsAsync(Product product, List<ProductCharacteristic>? characteristics);
     }

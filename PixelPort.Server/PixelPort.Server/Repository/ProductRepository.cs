@@ -41,7 +41,14 @@ namespace PixelPort.Server.Repository
             await _db.Entry(product).ReloadAsync();
             return product;
         }
-        public async Task<List<Product>> GetAllWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true)
+        public async Task<List<Product>> GetAllWithDetailsAsync(string search = null,
+            int? categoryId = null,
+            int? manufacturerId = null,
+            decimal? minPrice = null,
+            decimal? maxPrice = null,
+            string sortBy = "name",
+            bool sortDesc = false, 
+            bool tracked = true)
         {
             IQueryable<Product> query = _db.Products
                 .Include(p => p.Category)
@@ -53,10 +60,39 @@ namespace PixelPort.Server.Repository
                 query = query.AsNoTracking();
             }
 
-            if (filter != null)
+            if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(filter);
+                query = query.Where(p => p.ProductName.Contains(search));
             }
+
+            if (categoryId.HasValue)
+            {
+                query = query.Where(p => p.CategoryID == categoryId.Value);
+            }
+
+            if (manufacturerId.HasValue)
+            {
+                query = query.Where(p => p.ManufacturerID == manufacturerId.Value);
+            }
+
+            if (minPrice.HasValue)
+            {
+                query = query.Where(p => p.Price >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                query = query.Where(p => p.Price <= maxPrice.Value);
+            }
+
+            query = sortBy.ToLower() switch
+            {
+                "id" => sortDesc ? query.OrderByDescending(p => p.Id) : query.OrderBy(p => p.Id),
+                "price" => sortDesc ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
+                "date" => sortDesc ? query.OrderByDescending(p => p.CreatedDate) : query.OrderBy(p => p.CreatedDate),
+                "rate" => sortDesc ? query.OrderByDescending(p => p.Rate) : query.OrderBy(p => p.Rate),
+                _ => sortDesc ? query.OrderByDescending(p => p.ProductName) : query.OrderBy(p => p.ProductName)
+            };
 
             return await query.ToListAsync();
         }

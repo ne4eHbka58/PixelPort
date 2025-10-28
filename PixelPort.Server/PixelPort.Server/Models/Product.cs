@@ -16,6 +16,8 @@ namespace PixelPort.Server.Models
         public int ManufacturerID { get; set; }
         public Manufacturer Manufacturer { get; set; }
         public int Price { get; set; }
+        public string ImageUrl { get; set; }
+        public double Rate { get; set; }
         public DateTime CreatedDate { get; set; }
         public DateTime UpdatedDate { get; set; }
 

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using PixelPort.Server.Data;
 
@@ -11,9 +12,11 @@ using PixelPort.Server.Data;
 namespace PixelPort.Server.Migrations
 {
     [DbContext(typeof(PixelPortDbContext))]
-    partial class PixelPortDbContextModelSnapshot : ModelSnapshot
+    [Migration("20251027112059_Updated-Product-Fields")]
+    partial class UpdatedProductFields
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

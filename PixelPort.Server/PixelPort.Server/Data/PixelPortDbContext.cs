@@ -50,6 +50,8 @@ namespace PixelPort.Server.Data
                     CategoryID = 1,
                     ManufacturerID = 1,
                     Price = 40000,
+                    ImageUrl = "",
+                    Rate = 0,
                     CreatedDate = new DateTime(2025, 10, 20),
                     UpdatedDate = new DateTime(2025, 10, 20),
                 },
@@ -60,6 +62,8 @@ namespace PixelPort.Server.Data
                     CategoryID = 1,
                     ManufacturerID = 2,
                     Price = 20000,
+                    ImageUrl = "",
+                    Rate = 0,
                     CreatedDate = new DateTime(2025, 10, 20),
                     UpdatedDate = new DateTime(2025, 10, 20),
                 }
