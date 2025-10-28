@@ -16,6 +16,7 @@ namespace PixelPort.Server.Models.DTO
         [Required]
         [Range(1, int.MaxValue)]
         public int Price { get; set; }
+        public string Description { get; set; }
         public string ImageUrl { get; set; }
         public double Rate { get; set; }
 

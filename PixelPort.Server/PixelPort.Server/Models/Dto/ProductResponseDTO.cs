@@ -13,6 +13,7 @@ namespace PixelPort.Server.Models.DTO
         public int ManufacturerID { get; set; }
         public string ManufacturerName { get; set; }
         public int Price { get; set; }
+        public string Description { get; set; }
         public string ImageUrl { get; set; }
         public double Rate { get; set; }
         public DateTime CreatedDate { get; set; }
