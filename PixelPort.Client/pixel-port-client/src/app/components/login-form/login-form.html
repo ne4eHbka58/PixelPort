@@ -1,0 +1,43 @@
+<div class="login-form">
+  <div class="login-form__container">
+    <div class="login-form__card">
+      <div class="login-form__logo-container">
+        <img src="assets/icons/logo.svg" alt="Логотип" class="login-form__logo" />
+      </div>
+
+      <h1 class="login-form__title">Войти</h1>
+
+      <form class="login-form__form">
+        <div class="login-form__form-group">
+          <label for="phone" class="login-form__form-label">Номер телефона</label>
+          <input
+            type="tel"
+            id="phone"
+            class="login-form__form-input"
+            placeholder="+7 (000) 000-00-00"
+          />
+        </div>
+
+        <div class="login-form__form-group">
+          <label for="password" class="login-form__form-label">Пароль</label>
+          <input
+            type="password"
+            id="password"
+            class="login-form__form-input"
+            placeholder="Введите пароль"
+          />
+        </div>
+
+        <button type="submit" class="login-form__login-button">Войти</button>
+
+        <div class="login-form__register-link-container">
+          <p class="login-form__register-text">
+            <a routerLink="/register" class="login-form__register-link"
+              >Нет аккаунта? Зарегистрироваться</a
+            >
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

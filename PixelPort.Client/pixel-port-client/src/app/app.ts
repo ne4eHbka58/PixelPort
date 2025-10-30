@@ -6,7 +6,7 @@ import { RegistrationForm } from './components/registration-form/registration-fo
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, TuiRoot, Header, RegistrationForm],
+  imports: [RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.less',
 })

@@ -1,9 +1,10 @@
-import { ChangeDetectionStrategy, Component, signal } from '@angular/core';
+import { Component } from '@angular/core';
+import { RouterLink } from '@angular/router';
 
 @Component({
   standalone: true,
   selector: 'app-registration-form',
-  imports: [],
+  imports: [RouterLink],
   templateUrl: './registration-form.html',
   styleUrl: './registration-form.less',
 })

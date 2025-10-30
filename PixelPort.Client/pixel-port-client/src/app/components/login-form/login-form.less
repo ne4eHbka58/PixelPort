@@ -13,12 +13,12 @@
 
 // Стили
 
-.registration-form {
+.login-form {
   &__container {
     min-height: 100vh;
     display: flex;
     align-items: flex-start;
-    transform: translateY(5%); // Распологаем форму чуть выше центра
+    transform: translateY(15%); // Распологаем форму чуть выше центра
     justify-content: center;
     padding: 20px;
   }
@@ -88,7 +88,7 @@
     }
   }
 
-  &__register-button {
+  &__login-button {
     .gradient( #29b7b4, #ABBD26, #238dc5);
     color: white;
     border: none;
@@ -104,18 +104,18 @@
     }
   }
 
-  &__login-link-container {
+  &__register-link-container {
     text-align: center;
     margin-top: 10px;
   }
 
-  &__login-text {
+  &__register-text {
     color: @main-text-color;
     font-size: 14px;
     margin: 0;
   }
 
-  &__login-link {
+  &__register-link {
     color: @main-text-color;
     text-decoration: none;
 
