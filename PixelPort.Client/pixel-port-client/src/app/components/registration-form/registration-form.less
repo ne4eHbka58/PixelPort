@@ -1,0 +1,125 @@
+@import 'styles/variables.less';
+
+//Градиент
+.gradient(@color1, @color2, @color3, @direction: to right) {
+  background: linear-gradient(@direction, @color1, @color2, @color3);
+  border: none;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+// Стили
+
+.registration-form {
+  &__container {
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  &__card {
+    background-color: @card-bg-color;
+    border-radius: 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    max-width: 400px;
+    padding: 30px;
+  }
+
+  &__logo-container {
+    text-align: center;
+    margin-bottom: 20px;
+  }
+
+  &__logo {
+    height: 60px;
+    width: auto;
+    max-width: 100%;
+  }
+
+  &__title {
+    color: @main-text-color;
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+    margin-bottom: 25px;
+  }
+
+  &__form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+
+  &__form-group {
+    display: flex;
+    flex-direction: column;
+  }
+
+  &__form-label {
+    color: @main-text-color;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 5px;
+  }
+
+  &__form-input {
+    padding: 10px 12px;
+    background-color: @light-gray-color;
+    border: 1px solid @dark-card-bg-color;
+    border-radius: 4px;
+    color: @main-text-color;
+    font-size: 14px;
+
+    &:focus {
+      outline: none;
+      border-color: @green-color;
+      box-shadow: 0 0 0 2px fade(@green-color, 20%);
+    }
+
+    &::placeholder {
+      color: lighten(@main-text-color, 30%);
+    }
+  }
+
+  &__register-button {
+    .gradient( #29b7b4, #ABBD26, #238dc5);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+
+    &:active {
+      transform: translateY(1px);
+    }
+  }
+
+  &__login-link-container {
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  &__login-text {
+    color: @main-text-color;
+    font-size: 14px;
+    margin: 0;
+  }
+
+  &__login-link {
+    color: @main-text-color;
+    text-decoration: none;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+}

@@ -1,0 +1,23 @@
+:host {
+  // Переменные, чтобы можно было задавать стали извне компонента
+  --search-bg-color: transparent;
+  --search-border-radius: 0px;
+}
+
+.search-container {
+  width: 100%;
+  background: var(--search-bg-color);
+  border-radius: var(--search-border-radius);
+  padding: var(--search-padding);
+  border: none;
+
+  fieldset {
+    // Убираем встроенную обводку
+    border: none;
+  }
+
+  .search-field {
+    // Добавляем фон
+    background: var(--search-bg-color);
+  }
+}
