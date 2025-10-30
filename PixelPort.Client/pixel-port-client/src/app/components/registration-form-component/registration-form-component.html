@@ -1,0 +1,53 @@
+<div class="registration-form">
+  <div class="registration-form__container">
+    <div class="registration-form__card">
+      <div class="registration-form__logo-container">
+        <img src="assets/icons/logo.svg" alt="Логотип" class="registration-form__logo" />
+      </div>
+
+      <h1 class="registration-form__title">Регистрация</h1>
+
+      <form class="registration-form__form">
+        <app-custom-input label="Имя" placeholder="Введите имя" type="text" id="firstName" />
+
+        <app-custom-input label="Фамилия" placeholder="Введите фамилию" type="text" id="lastName" />
+
+        <app-custom-input
+          label="Адрес электронной почты"
+          placeholder="example@mail.com"
+          type="email"
+          id="email"
+        />
+
+        <app-custom-input
+          label="Номер телефона"
+          placeholder="+7 (000) 000-00-00"
+          type="tel"
+          id="phone"
+        />
+
+        <app-custom-input
+          label="Пароль"
+          placeholder="Введите пароль"
+          type="password"
+          id="password"
+        />
+
+        <app-custom-input
+          label="Повторите пароль"
+          placeholder="Введите пароль"
+          type="password"
+          id="password-repeat"
+        />
+
+        <button type="submit" class="registration-form__register-button">Зарегистрироваться</button>
+
+        <div class="registration-form__login-link-container">
+          <p class="registration-form__login-text">
+            <a routerLink="/login" class="registration-form__login-link">Уже есть аккаунт? Войти</a>
+          </p>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

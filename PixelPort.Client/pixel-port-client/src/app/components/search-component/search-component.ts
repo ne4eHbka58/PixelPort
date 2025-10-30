@@ -5,10 +5,10 @@ import { TuiTextfieldComponent } from '@taiga-ui/core';
 @Component({
   selector: 'app-search',
   imports: [TuiTextfieldComponent, ReactiveFormsModule],
-  templateUrl: './search.html',
-  styleUrl: './search.less',
+  templateUrl: './search-component.html',
+  styleUrl: './search-component.less',
 })
-export class Search {
+export class SearchComponent {
   form = new FormGroup({
     search: new FormControl(''),
   });

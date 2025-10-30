@@ -1,4 +1,5 @@
 :host {
+  // Фон для страницы
   display: block;
   min-height: 100vh;
   background: linear-gradient(
@@ -7,4 +8,19 @@
     rgba(171, 189, 38, 0.5) 50%,
     rgba(35, 141, 197, 0.5) 100%
   );
+  background-size: 200% 200%;
+  animation: gradientShift 12s ease infinite;
+}
+
+@keyframes gradientShift {
+  // Анимация для градиента
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
