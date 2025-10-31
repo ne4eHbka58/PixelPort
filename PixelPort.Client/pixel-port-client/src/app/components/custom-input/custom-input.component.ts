@@ -3,8 +3,8 @@ import { Component, Input } from '@angular/core';
 @Component({
   selector: 'app-custom-input',
   imports: [],
-  templateUrl: './custom-input-component.html',
-  styleUrl: './custom-input-component.less',
+  templateUrl: './custom-input.component.html',
+  styleUrl: './custom-input.component.less',
 })
 export class CustomInputComponent {
   @Input() label: string = ''; // Текст лейбла

@@ -1,0 +1,42 @@
+<div class="product-info">
+  <div class="product-info__container">
+    <div class="product-info__img">
+      <img [src]="productImageSrc" />
+    </div>
+
+    <div class="product-info__info">
+      <div class="product-info__name-text">
+        <h1>{{ productName }}</h1>
+      </div>
+
+      <div class="product-info__descript-text">
+        <p><span class="bold">Производитель:</span> {{ productManufacturer }}</p>
+        <p>{{ productDescription }}</p>
+      </div>
+
+      <div class="product-info__actions">
+        <div class="product-info__price-container">
+          <!-- ПОФИКСИТЬ ВЫВОД ЧЕРЕЗ ЗАПЯТУЮ -->
+          <p>{{ productPrice | number : '1.0-0' }} ₽</p>
+          <button class="product-info__buy-button">Купить</button>
+        </div>
+        <div class="product-info__share-container">
+          <button class="product-info__share-button">
+            <tui-icon icon="@tui.share-2" [style.font-size.rem]="2" />
+          </button>
+        </div>
+      </div>
+
+      <div class="product-info--characteristics">
+        <table>
+          <tbody>
+            <tr *ngFor="let characteristic of characteristics">
+              <td class="bold">{{ characteristic.characteristicName }}:</td>
+              <td>{{ characteristic.characteristicValue }}</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
