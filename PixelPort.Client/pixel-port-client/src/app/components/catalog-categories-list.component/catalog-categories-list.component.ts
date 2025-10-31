@@ -3,10 +3,9 @@ import { CatalogCategory } from '../catalog-category.component/catalog-category.
 
 @Component({
   selector: 'app-catalog-categories-list',
+  standalone: true,
   imports: [CatalogCategory],
   templateUrl: './catalog-categories-list.component.html',
   styleUrl: './catalog-categories-list.component.less',
 })
-export class CatalogCategoriesListComponent {
-
-}
+export class CatalogCategoriesListComponent {}

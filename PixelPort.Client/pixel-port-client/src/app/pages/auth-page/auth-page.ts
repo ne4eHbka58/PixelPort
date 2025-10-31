@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { Component } from '@angular/core';
+import { ActivatedRoute } from '@angular/router';
 import { CommonModule } from '@angular/common';
 import { LoginFormComponent } from '../../components/login-form.component/login-form.component';
 import { RegistrationFormComponent } from '../../components/registration-form.component/registration-form.component';
@@ -14,7 +14,7 @@ import { RegistrationFormComponent } from '../../components/registration-form.co
 export class AuthPage {
   mode: 'login' | 'register' = 'login';
 
-  constructor(private route: ActivatedRoute) {}
+  constructor(private route: ActivatedRoute) {} // Получаем доступ к URL
 
   ngOnInit() {
     // Следим за изменениями query параметров

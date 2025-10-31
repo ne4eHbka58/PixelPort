@@ -1,6 +1,6 @@
 @import 'styles/variables.less';
 
-//Градиент
+//Трёхцветный градиент направо
 .gradient(@color1, @color2, @color3, @direction: to right) {
   background: linear-gradient(@direction, @color1, @color2, @color3);
   border: none;
@@ -18,7 +18,7 @@
     min-height: 100vh;
     display: flex;
     align-items: flex-start;
-    transform: translateY(15%); // Распологаем форму чуть выше центра
+    transform: translateY(15%); // Распологаем форму чуть выше центра страницы
     justify-content: center;
     padding: 20px;
   }
@@ -100,7 +100,7 @@
     transition: background-color 0.2s ease;
 
     &:active {
-      transform: translateY(1px);
+      transform: translateY(1px); // Смещаем кнопку при нажатии
     }
   }
 

@@ -6,6 +6,7 @@ import { TuiIcon } from '@taiga-ui/core';
 
 @Component({
   selector: 'app-header',
+  standalone: true,
   imports: [ReactiveFormsModule, SearchComponent, TuiIcon, RouterLink],
   templateUrl: './header.component.html',
   styleUrl: './header.component.less',

@@ -12,8 +12,7 @@
     flex-direction: row;
     align-items: center;
     justify-content: space-between;
-
-    width: 1400px;
+    width: @container-width;
   }
 
   &__logo {
@@ -61,12 +60,12 @@
     cursor: pointer;
     transition: all 0.3s;
 
-    p {
-      margin: 0;
-    }
-
     &:hover {
       background-color: @hover-gray-color;
+    }
+
+    p {
+      margin: 0;
     }
   }
 
@@ -78,14 +77,14 @@
     cursor: pointer;
     transition: all 0.3s;
 
+    &:hover {
+      background-color: @hover-gray-color;
+    }
+
     h2 {
       margin: 0;
       font-weight: 400;
       font-size: 1.3rem;
-    }
-
-    &:hover {
-      background-color: @hover-gray-color;
     }
   }
 }

@@ -11,11 +11,17 @@
 
   &__container {
     margin-top: 100px;
-    margin-inline: auto;
-    max-width: 1200px;
     display: flex;
     flex-direction: row;
     gap: 30px;
+  }
+
+  &__img {
+    & > img {
+      width: 600px;
+      height: 600px;
+      object-fit: cover; // Заполнение родительского элемента с сохранением пропорций. Непоместившееся обрезается
+    }
   }
 
   &__info {
@@ -27,13 +33,14 @@
   &__name-text {
     & > h1 {
       margin: 0;
-      font-size: 24px;
+      font-size: 30px;
     }
   }
 
   &__actions {
     display: flex;
     flex-direction: row;
+    justify-content: flex-start;
     gap: 50px;
   }
 
@@ -104,11 +111,6 @@
   table {
     td {
       padding: 6px 10px;
-    }
-
-    &.auto-width {
-      width: auto;
-      white-space: nowrap;
     }
   }
 }

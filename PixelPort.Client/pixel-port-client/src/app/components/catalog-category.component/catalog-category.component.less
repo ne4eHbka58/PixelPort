@@ -1,38 +1,37 @@
 @import 'styles/variables.less';
 
 .catalog-category {
-  width: 650px;
-  height: 650px;
-  padding: 40px 30px 15px;
+  width: 450px;
+  height: 400px;
+  padding: 20px 30px 15px;
   background-color: @card-bg-color;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 40px;
+  gap: 20px;
   cursor: pointer;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
 
-    
-    &__title {
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  }
+
+  &__title {
     color: @main-text-color;
-    font-size: 64px;
+    font-size: 54px;
     font-weight: 400;
     margin: 0;
-    }
+  }
 
-    &__image-container {
-    width: 570px;
-    height: 500px;
+  &__image-container {
     display: flex;
-    align-items: center;
-    justify-content: center;
     background-color: @dark-card-bg-color;
+  }
 
-    }
-
-    &__image {
-    width: 570px;
-    height: 500px;
-    object-fit: cover;
-    }
+  &__image {
+    width: 370px;
+    height: 300px;
+    object-fit: cover; // Заполнение родительского элемента с сохранением пропорций. Непоместившееся обрезается
+  }
 }
-
