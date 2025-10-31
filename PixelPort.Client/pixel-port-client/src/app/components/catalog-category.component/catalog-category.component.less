@@ -1,0 +1,38 @@
+@import 'styles/variables.less';
+
+.catalog-category {
+  width: 650px;
+  height: 650px;
+  padding: 40px 30px 15px;
+  background-color: @card-bg-color;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+  cursor: pointer;
+
+    
+    &__title {
+    color: @main-text-color;
+    font-size: 64px;
+    font-weight: 400;
+    margin: 0;
+    }
+
+    &__image-container {
+    width: 570px;
+    height: 500px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: @dark-card-bg-color;
+
+    }
+
+    &__image {
+    width: 570px;
+    height: 500px;
+    object-fit: cover;
+    }
+}
+

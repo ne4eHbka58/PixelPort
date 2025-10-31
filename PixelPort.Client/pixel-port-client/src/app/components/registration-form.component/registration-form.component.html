@@ -44,7 +44,12 @@
 
         <div class="registration-form__login-link-container">
           <p class="registration-form__login-text">
-            <a routerLink="/login" class="registration-form__login-link">Уже есть аккаунт? Войти</a>
+            <a
+              [routerLink]="['/auth']"
+              [queryParams]="{ mode: 'login' }"
+              class="registration-form__login-link"
+              >Уже есть аккаунт? Войти</a
+            >
           </p>
         </div>
       </form>

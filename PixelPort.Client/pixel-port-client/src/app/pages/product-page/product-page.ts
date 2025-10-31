@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
-import { ProductInfoComponent } from '../../components/product-info/product-info.component';
-import { HeaderComponent } from '../../components/header/header.component';
+import { ProductInfoComponent } from '../../components/product-info.component/product-info.component';
+import { HeaderComponent } from '../../components/header.component/header.component';
 
 @Component({
   selector: 'app-product-page',

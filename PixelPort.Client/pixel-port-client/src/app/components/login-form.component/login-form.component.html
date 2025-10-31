@@ -26,7 +26,10 @@
 
         <div class="login-form__register-link-container">
           <p class="login-form__register-text">
-            <a routerLink="/register" class="login-form__register-link"
+            <a
+              [routerLink]="['/auth']"
+              [queryParams]="{ mode: 'register' }"
+              class="login-form__register-link"
               >Нет аккаунта? Зарегистрироваться</a
             >
           </p>
