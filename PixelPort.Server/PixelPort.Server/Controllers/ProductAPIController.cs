@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -31,7 +32,7 @@ namespace PixelPort.Server.Controllers
         }
 
 
-        [HttpGet(Name = "GetProducts")]
+        [HttpGet("", Name = "GetProducts")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<ProductResponseDTO>>> Get(
@@ -98,7 +99,8 @@ namespace PixelPort.Server.Controllers
             }
         }
 
-        [HttpPost(Name = "CreateProduct")]
+        [HttpPost("", Name = "CreateProduct")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -141,6 +143,7 @@ namespace PixelPort.Server.Controllers
         }
 
         [HttpDelete("{productId:int}", Name = "DeleteProduct")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -180,6 +183,7 @@ namespace PixelPort.Server.Controllers
         }
 
         [HttpPut("{productId:int}", Name = "UpdateProduct")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]

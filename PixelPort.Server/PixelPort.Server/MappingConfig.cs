@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Identity.Data;
 using PixelPort.Server.Models;
 using PixelPort.Server.Models.Dto;
 using PixelPort.Server.Models.DTO;
@@ -41,6 +42,12 @@ namespace PixelPort.Server
                 .ForMember(dest => dest.ProductId, opt => opt.Ignore()); // Не меняем айди товара
 
             CreateMap<ProductCharacteristic, ProductCharacteristicUpdateDTO>();
+
+            CreateMap<User, UserDTO>()
+                .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role.RoleName));
+
+            CreateMap<RegistrationRequestDTO, User>();
+
         }
     }
 }

@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using PixelPort.Server.Models;
@@ -29,7 +30,7 @@ namespace PixelPort.Server.Controllers
             _mapper = mapper;
         }
 
-        [HttpGet(Name = "GetProductCharacteristics")]
+        [HttpGet("", Name = "GetProductCharacteristics")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<ProductCharacteristicResponseDTO>>> Get(int productId)
@@ -88,7 +89,8 @@ namespace PixelPort.Server.Controllers
             }
         }
 
-        [HttpPost(Name = "CreateCharacteristic")]
+        [HttpPost("", Name = "CreateCharacteristic")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
@@ -132,6 +134,7 @@ namespace PixelPort.Server.Controllers
         }
 
         [HttpDelete("{characteristicId:int}", Name = "DeleteCharacteristic")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -171,6 +174,7 @@ namespace PixelPort.Server.Controllers
         }
 
         [HttpPut("{characteristicId:int}", Name = "UpdateCharacteristic")]
+        [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
