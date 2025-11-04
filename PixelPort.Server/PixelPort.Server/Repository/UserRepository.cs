@@ -27,6 +27,20 @@ namespace PixelPort.Server.Repository
             secretKey = configuration.GetValue<string>("ApiSettings:Secret");
         }
 
+        public async Task<UserDTO> GetUser(int id)
+        {
+            var user = await _db.Users
+                .Include(u => u.Role)
+                .FirstOrDefaultAsync(u => u.Id == id);
+
+            if (user != null)
+            {
+                var userDto = _mapper.Map<UserDTO>(user);
+                return userDto;
+            }
+            return new UserDTO();
+        }
+
         public async Task<bool> IsUniqueUser(string email)
         {
             var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
@@ -91,5 +105,7 @@ namespace PixelPort.Server.Repository
 
             return tempUser;
         }
+
+
     }
 }

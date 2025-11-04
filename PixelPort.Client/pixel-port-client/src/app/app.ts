@@ -1,12 +1,14 @@
 import { Component, signal } from '@angular/core';
 import { RouterOutlet } from '@angular/router';
+import { TuiRoot } from '@taiga-ui/core';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet],
+  standalone: true,
+  imports: [RouterOutlet, TuiRoot],
   templateUrl: './app.html',
   styleUrl: './app.less',
 })
 export class App {
-  protected readonly title = signal('pixel-port-client');
+  protected readonly title = signal('PixelPort');
 }

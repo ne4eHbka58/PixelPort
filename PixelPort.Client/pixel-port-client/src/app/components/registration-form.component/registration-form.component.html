@@ -8,36 +8,41 @@
       <h1 class="registration-form__title">Регистрация</h1>
 
       <form class="registration-form__form">
-        <app-custom-input label="Имя" placeholder="Введите имя" type="text" id="firstName" />
+        <app-custom-input label="Имя" placeholder="Введите имя" type="text" id="reg-firstName" />
 
-        <app-custom-input label="Фамилия" placeholder="Введите фамилию" type="text" id="lastName" />
+        <app-custom-input
+          label="Фамилия"
+          placeholder="Введите фамилию"
+          type="text"
+          id="reg-lastName"
+        />
 
         <app-custom-input
           label="Адрес электронной почты"
           placeholder="example@mail.com"
           type="email"
-          id="email"
+          id="reg-email"
         />
 
         <app-custom-input
           label="Номер телефона"
           placeholder="+7 (000) 000-00-00"
           type="tel"
-          id="phone"
+          id="reg-phone"
         />
 
         <app-custom-input
           label="Пароль"
           placeholder="Введите пароль"
           type="password"
-          id="password"
+          id="reg-password"
         />
 
         <app-custom-input
           label="Повторите пароль"
           placeholder="Введите пароль"
           type="password"
-          id="password-repeat"
+          id="reg-password-repeat"
         />
 
         <button type="submit" class="registration-form__register-button">Зарегистрироваться</button>

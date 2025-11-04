@@ -5,6 +5,7 @@ using PixelPort.Server.Models;
 using PixelPort.Server.Models.Dto;
 using PixelPort.Server.Models.DTO;
 using PixelPort.Server.Repository.IRepository;
+using System.Security.Claims;
 
 namespace PixelPort.Server.Controllers
 {
@@ -21,6 +22,45 @@ namespace PixelPort.Server.Controllers
             _logger = logger;
         }
 
+        [HttpGet("getcurrentuser", Name = "GetCurrentUser")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult<UserDTO>> GetUser()
+        {
+            try
+            {
+                // Получаем id пользователя из токена
+                var userIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+
+                if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
+                {
+                    _logger.LogInformation($"ERROR: Getting current user - Invalid Token");
+
+                    return StatusCode(401);
+                }
+
+                var user = await _userRepo.GetUser(userId);
+
+                if (user == null)
+                {
+                    _logger.LogInformation($"ERROR: Getting current user - Not Found with id = {userId}");
+                    return StatusCode(404);
+                }
+
+                _logger.LogInformation($"Getting current user");
+
+                return StatusCode(200, user);
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"ERROR: GetCurrentUser - {ex.Message}");
+
+                return StatusCode(500);
+            }
+        }
+
         [HttpPost("login", Name = "Login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -34,8 +74,19 @@ namespace PixelPort.Server.Controllers
                 if(loginResponse == null || string.IsNullOrEmpty(loginResponse.Token))
                 {
                     _logger.LogInformation($"ERROR: Login - Login or password is incorrect");
+
                     return StatusCode(400, "Login or password is incorrect");
                 }
+
+                // Устанавливаем Cookies
+                Response.Cookies.Append("auth_token", loginResponse.Token, new CookieOptions
+                {
+                    HttpOnly = true,
+                    Secure = false, // false для http
+                    SameSite = SameSiteMode.None, // Критически важно для CORS
+                    Expires = DateTime.UtcNow.AddDays(7),
+                    Path = "/"
+                });
 
                 _logger.LogInformation($"Login with email - {loginResponse.User.Email}");
                 return StatusCode(200, loginResponse);
@@ -45,6 +96,76 @@ namespace PixelPort.Server.Controllers
             catch (Exception ex)
             {
                 _logger.LogInformation($"ERROR: Login - {ex.Message}");
+
+                return StatusCode(500);
+            }
+        }
+
+        [HttpPost("logout", Name = "Logout")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+
+        public IActionResult Logout()
+        {
+            try
+            {
+                //Очистка cookie
+                Response.Cookies.Delete("auth_token");
+
+                _logger.LogInformation($"Logging out");
+
+                return StatusCode(200);
+            }
+
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"ERROR: Logout - {ex.Message}");
+
+                return StatusCode(500);
+            }
+        }
+
+        [HttpGet("check", Name = "CheckAuth")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
+        public async Task<ActionResult> CheckAuth()
+        {
+            try
+            {
+                // Получаем id пользователя из токена
+                var userIdString = User.FindFirst(ClaimTypes.Name)?.Value;
+
+                // 👇 Выведем все claims для отладки
+                foreach (var claim in User.Claims)
+                {
+                    Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");
+                }
+
+                // 👇 Проверяем разные возможные типы claims
+                var userIdString2 = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userIdString3 = User.FindFirst("unique_name")?.Value;
+                var userIdString4 = User.FindFirst("sub")?.Value;
+
+                Console.WriteLine($"Name: {userIdString}");
+                Console.WriteLine($"NameIdentifier: {userIdString2}");
+                Console.WriteLine($"unique_name: {userIdString3}");
+                Console.WriteLine($"sub: {userIdString4}");
+
+                if (int.TryParse(userIdString, out int userId))
+                {
+                    var user = await _userRepo.GetUser(userId);
+
+                    _logger.LogInformation($"Checking Auth");
+
+                    return StatusCode(200, new { authenticated = true, userDto = user });
+                }
+
+                return StatusCode(200, new { authenticated = false });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"ERROR: CheckAuth - {ex.Message}");
 
                 return StatusCode(500);
             }

@@ -1,5 +1,5 @@
 export interface ProductCharacteristic {
   id: Number;
-  characteristicName: String;
-  characteristicValue: String;
+  characteristicName: string;
+  characteristicValue: string;
 }

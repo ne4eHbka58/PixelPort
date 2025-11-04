@@ -69,22 +69,71 @@
     }
   }
 
-  &__user {
+  &__user-info {
     display: flex;
-    flex-direction: column;
-    padding: 0.5rem;
-    border-radius: 8%;
-    cursor: pointer;
-    transition: all 0.3s;
+    font-size: 1.2rem;
+    color: @main-text-color;
 
-    &:hover {
-      background-color: @hover-gray-color;
+    & > button {
+      border: none;
+      background-color: transparent;
+      border-radius: 7%;
+      cursor: pointer;
+      padding: 1rem;
+      font-size: 1.3rem;
+      font-weight: 500;
+      color: @main-text-color;
+      transition: all 0.3s ease;
     }
 
-    h2 {
-      margin: 0;
-      font-weight: 400;
-      font-size: 1.3rem;
+    & > button:hover {
+      background-color: @light-gray-color;
+    }
+  }
+
+  &__dropdown {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    width: 12rem;
+    height: 2rem;
+    font-size: 1.1rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: @light-gray-color;
+    }
+  }
+
+  &__auth-links {
+    display: flex;
+    flex-direction: row;
+    gap: 30px;
+
+    & > a {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      text-decoration: none;
+      color: @main-text-color;
+      font-size: 1.5rem;
+      padding: 0.6rem 0.8rem;
+      border-radius: 7%;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      // Фиксируем размер чтобы остальные элементы не двигались
+      min-width: 120px;
+      text-align: center;
+    }
+
+    & > a:hover {
+      font-size: 1.6rem;
+      background-color: @hover-gray-color;
     }
   }
 }

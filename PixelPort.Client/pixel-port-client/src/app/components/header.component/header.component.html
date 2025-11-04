@@ -14,10 +14,39 @@
         <p>Корзина</p>
       </div>
 
-      <div class="header__user">
-        <h2>Username</h2>
-        <h2>UserSecondName</h2>
-      </div>
+      <nav>
+        @if (isAuthenticated$ | async) {
+        <div class="header__user-info">
+          @if (isLoading()) {
+          <span>Загрузка...</span>
+          } @else if (currentUser()) {
+          <button
+            tuiButton
+            type="button"
+            [tuiDropdown]="dropdownContent"
+            [tuiDropdownManual]="DropDownOpen"
+            [tuiObscuredEnabled]="DropDownOpen"
+            (click)="DropDownOnClick()"
+            (tuiActiveZoneChange)="onActiveZone($event)"
+            (tuiObscured)="onObscured($event)"
+          >
+            {{ currentUser()!.firstName }} {{ currentUser()!.lastName }}
+          </button>
+
+          <ng-template #dropdownContent>
+            <div class="header__dropdown">Профиль</div>
+            <div class="header__dropdown" (click)="logout()">Выйти</div>
+          </ng-template>
+          }
+        </div>
+        } @else {
+        <div class="header__auth-links">
+          <a routerLink="/auth" [queryParams]="{ mode: 'login' }" class="header__auth-link"
+            >Войти<tui-icon icon="@tui.log-in"
+          /></a>
+        </div>
+        }
+      </nav>
     </div>
   </div>
 </div>

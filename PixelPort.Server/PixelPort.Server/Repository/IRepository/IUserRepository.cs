@@ -8,5 +8,6 @@ namespace PixelPort.Server.Repository.IRepository
         Task<bool> IsUniqueUser(string email);
         Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
         Task<User> Register(RegistrationRequestDTO registrationRequestDTO);
+        Task<UserDTO> GetUser(int id);
     }
 }
