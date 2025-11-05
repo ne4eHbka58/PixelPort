@@ -4,6 +4,7 @@ import { BehaviorSubject, catchError, map, Observable, tap } from 'rxjs';
 import { HttpClient } from '@angular/common/http';
 import { LoginResponseDTO } from '../interfaces/login-responseDTO.interface';
 import { UserDTO } from '../interfaces/userDTO.interface';
+import { RegistrationRequestDTO } from '../interfaces/registration-requestDTO.interface';
 
 @Injectable({
   providedIn: 'root',
@@ -31,21 +32,27 @@ export class AuthService {
       );
   }
 
-  logout(): Observable<void> {
+  register(registrationData: RegistrationRequestDTO): Observable<any> {
     return this.http
-      .post<void>(
-        `${this.baseApiUrl}UserAuth/logout`,
-        {},
-        {
-          withCredentials: true,
-        }
-      )
+      .post<any>(`${this.baseApiUrl}UserAuth/register`, registrationData, {
+        withCredentials: true,
+      })
       .pipe(
         tap(() => {
-          this.isAuthenticatedSubject.next(false);
-          // Браузер автоматически удалит cookie когда истечёт срок
+          console.log('User registered successfully');
         })
       );
+  }
+
+  logout(): Observable<void> {
+    this.isAuthenticatedSubject.next(false);
+    return this.http.post<void>(
+      `${this.baseApiUrl}UserAuth/logout`,
+      {},
+      {
+        withCredentials: true,
+      }
+    );
   }
 
   checkAuthStatus(): void {
@@ -54,7 +61,13 @@ export class AuthService {
         withCredentials: true,
       })
       .subscribe({
-        next: (response) => this.isAuthenticatedSubject.next(response.authenticated),
+        next: (response) => {
+          if (response !== null && response !== undefined) {
+            this.isAuthenticatedSubject.next(response.authenticated);
+          } else {
+            this.isAuthenticatedSubject.next(false);
+          }
+        },
         error: () => this.isAuthenticatedSubject.next(false),
       });
   }

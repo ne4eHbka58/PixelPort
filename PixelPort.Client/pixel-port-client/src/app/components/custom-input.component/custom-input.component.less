@@ -28,5 +28,34 @@
     &::placeholder {
       color: lighten(@main-text-color, 30%);
     }
+
+    // Стили для автозаполнения
+    &:-webkit-autofill,
+    &:-webkit-autofill:hover,
+    &:-webkit-autofill:focus,
+    &:-webkit-autofill:active {
+      -webkit-box-shadow: 0 0 0 1000px @light-gray-color inset;
+      -webkit-text-fill-color: @main-text-color;
+      background-color: @light-gray-color;
+      border-color: @dark-card-bg-color;
+      transition: background-color 5000s ease-in-out 0s;
+    }
+
+    // Для Firefox
+    &:autofill {
+      background-color: @light-gray-color;
+      color: @main-text-color;
+    }
+
+    // Для современных браузеров
+    &::autofill {
+      background-color: @light-gray-color;
+      color: @main-text-color;
+    }
   }
+}
+
+.error-message {
+  color: red;
+  font-size: 12px;
 }

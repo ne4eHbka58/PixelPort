@@ -1,0 +1,44 @@
+@import 'styles/variables.less';
+
+.product-card {
+  width: 300px;
+  height: 430px;
+  padding: 20px 30px 15px;
+  background-color: @card-bg-color;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+
+  &__title {
+    color: @main-text-color;
+    font-size: 25px;
+    font-weight: 300;
+    margin: 0;
+  }
+
+  &__image-container {
+    display: flex;
+    background-color: @dark-card-bg-color;
+  }
+
+  &__image {
+    width: 285px;
+    height: 240px;
+    object-fit: cover; 
+  }
+ 
+}
+.product-card__buy-button {
+    width: 285px;
+    height: 40px;
+    background-color: #1DB357;
+    cursor: pointer;
+    border: #1DB357;
+    color: #ffffff;
+    &:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+    }
+}

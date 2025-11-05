@@ -17,7 +17,7 @@
       <nav>
         @if (isAuthenticated$ | async) {
         <div class="header__user-info">
-          @if (isLoading()) {
+          @if (isUserLoading()) {
           <span>Загрузка...</span>
           } @else if (currentUser()) {
           <button

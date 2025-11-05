@@ -1,4 +1,30 @@
 <div class="custom-input">
-  <label [for]="id" class="custom-input__label">{{ label }}</label>
-  <input [type]="type" [id]="id" class="custom-input__field" [placeholder]="placeholder" />
+  <label [for]="id" class="custom-input__label"
+    >{{ label }}@if (required) {<span style="color: red">*</span>}
+  </label>
+  <input
+    [id]="id"
+    [type]="type"
+    [placeholder]="placeholder"
+    [value]="value"
+    (input)="onInput($event)"
+    (blur)="onBlur()"
+    class="custom-input__field"
+    [class.form-input--error]="showErrors()"
+  />
+
+  <!-- Блок ошибок -->
+  @if (showErrors()) {
+  <div class="custom-input__errors">
+    @if (hasError('required')) {
+    <div class="error-message">Это поле обязательно для заполнения</div>
+    } @if (hasError('minlength')) {
+    <div class="error-message">Количество символов должно быть не менее {{ minLength }}</div>
+    } @if (hasError('invalidEmail')) {
+    <div class="error-message">Неверный формат email</div>
+    } @if (hasError('invalidPhone')) {
+    <div class="error-message">Неверный формат телефона</div>
+    }
+  </div>
+  }
 </div>

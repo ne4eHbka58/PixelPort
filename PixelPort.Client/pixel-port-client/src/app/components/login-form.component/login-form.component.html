@@ -7,12 +7,14 @@
 
       <h1 class="login-form__title">Войти</h1>
 
-      <form class="login-form__form">
+      <form class="login-form__form" [formGroup]="loginForm" (ngSubmit)="onSubmit($event)">
         <app-custom-input
           label="Адрес электронной почты"
           placeholder="example@mail.com"
           type="email"
           id="log-email"
+          [required]="true"
+          formControlName="email"
         />
 
         <app-custom-input
@@ -20,6 +22,9 @@
           placeholder="Введите пароль"
           type="password"
           id="log-password"
+          [required]="true"
+          formControlName="password"
+          [minLength]="5"
         />
 
         <button type="submit" class="login-form__login-button">Войти</button>

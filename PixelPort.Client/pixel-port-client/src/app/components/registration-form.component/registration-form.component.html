@@ -7,14 +7,34 @@
 
       <h1 class="registration-form__title">Регистрация</h1>
 
-      <form class="registration-form__form">
-        <app-custom-input label="Имя" placeholder="Введите имя" type="text" id="reg-firstName" />
+      <form
+        class="registration-form__form"
+        [formGroup]="registerForm"
+        (ngSubmit)="onSubmit($event)"
+      >
+        <app-custom-input
+          label="Имя"
+          placeholder="Введите имя"
+          type="text"
+          id="reg-firstName"
+          formControlName="firstName"
+          [required]="true"
+        />
 
         <app-custom-input
           label="Фамилия"
           placeholder="Введите фамилию"
           type="text"
           id="reg-lastName"
+          formControlName="lastName"
+          [required]="true"
+        />
+
+        <app-custom-input
+          label="Отчество"
+          placeholder="Введите отчество"
+          type="text"
+          id="reg-patronymic"
         />
 
         <app-custom-input
@@ -22,6 +42,8 @@
           placeholder="example@mail.com"
           type="email"
           id="reg-email"
+          [required]="true"
+          formControlName="email"
         />
 
         <app-custom-input
@@ -29,6 +51,8 @@
           placeholder="+7 (000) 000-00-00"
           type="tel"
           id="reg-phone"
+          [required]="true"
+          formControlName="phone"
         />
 
         <app-custom-input
@@ -36,14 +60,24 @@
           placeholder="Введите пароль"
           type="password"
           id="reg-password"
+          [required]="true"
+          formControlName="password"
+          [minLength]="5"
         />
 
         <app-custom-input
           label="Повторите пароль"
           placeholder="Введите пароль"
           type="password"
-          id="reg-password-repeat"
+          id="reg-confirm-password"
+          [required]="true"
+          formControlName="confirmPassword"
         />
+
+        <!-- Общая ошибка для паролей -->
+        @if (registerForm.errors?.['passwordMismatch'] && registerForm.touched) {
+        <div class="registration-form__form-error">Пароли не совпадают</div>
+        }
 
         <button type="submit" class="registration-form__register-button">Зарегистрироваться</button>
 

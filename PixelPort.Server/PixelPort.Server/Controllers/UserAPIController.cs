@@ -64,6 +64,7 @@ namespace PixelPort.Server.Controllers
         [HttpPost("login", Name = "Login")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO model)
         {
@@ -75,7 +76,7 @@ namespace PixelPort.Server.Controllers
                 {
                     _logger.LogInformation($"ERROR: Login - Login or password is incorrect");
 
-                    return StatusCode(400, "Login or password is incorrect");
+                    return StatusCode(401, "Login or password is incorrect");
                 }
 
                 // Устанавливаем Cookies
@@ -83,7 +84,7 @@ namespace PixelPort.Server.Controllers
                 {
                     HttpOnly = true,
                     Secure = false, // false для http
-                    SameSite = SameSiteMode.None, // Критически важно для CORS
+                    SameSite = SameSiteMode.None, // Сейчас стоит Lax для тестов, для https поставить None
                     Expires = DateTime.UtcNow.AddDays(7),
                     Path = "/"
                 });
@@ -135,22 +136,6 @@ namespace PixelPort.Server.Controllers
             {
                 // Получаем id пользователя из токена
                 var userIdString = User.FindFirst(ClaimTypes.Name)?.Value;
-
-                // 👇 Выведем все claims для отладки
-                foreach (var claim in User.Claims)
-                {
-                    Console.WriteLine($"Claim: {claim.Type} = {claim.Value}");
-                }
-
-                // 👇 Проверяем разные возможные типы claims
-                var userIdString2 = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-                var userIdString3 = User.FindFirst("unique_name")?.Value;
-                var userIdString4 = User.FindFirst("sub")?.Value;
-
-                Console.WriteLine($"Name: {userIdString}");
-                Console.WriteLine($"NameIdentifier: {userIdString2}");
-                Console.WriteLine($"unique_name: {userIdString3}");
-                Console.WriteLine($"sub: {userIdString4}");
 
                 if (int.TryParse(userIdString, out int userId))
                 {
