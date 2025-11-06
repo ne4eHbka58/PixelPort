@@ -32,13 +32,15 @@ import { LoadingService } from '../../data/services/loading.service';
 export class HeaderComponent {
   form: any;
 
+  // Сервисы
   private authService = inject(AuthService);
   private loadingService = inject(LoadingService);
   private readonly alerts = inject(TuiAlertService);
   private router = inject(Router);
 
-  isAuthenticated$ = this.authService.isAuthenticated$;
+  // Сигналы, Observable и т.д
   currentUser = signal<UserDTO | null>(null);
+  isAuthenticated$ = this.authService.isAuthenticated$;
   isUserLoading = this.loadingService.isUserLoading;
   private destroy$ = new Subject<void>(); // Объект, сигнализирующий об уничтожении компонента, нужен для предотвращения утечек памяти путём отписок от Observable
 
@@ -67,7 +69,7 @@ export class HeaderComponent {
         error: () => {
           this.currentUser.set(null);
           this.loadingService.setUserLoading(false);
-          this.showNotificationError('Пользователь не авторизован');
+          this.alerts.open('Произошла ошибка - Пользователь не авторизован').subscribe();
         },
       });
   }
@@ -89,6 +91,7 @@ export class HeaderComponent {
     this.DropDownOpen = !this.DropDownOpen;
   }
 
+  // Закрытие DropDown при перекрытии другим элементом
   protected onObscured(obscured: boolean): void {
     if (obscured) {
       this.DropDownOpen = false;
@@ -97,13 +100,5 @@ export class HeaderComponent {
 
   protected onActiveZone(active: boolean): void {
     this.DropDownOpen = active && this.DropDownOpen;
-  }
-
-  protected showNotificationError(err: string): void {
-    this.alerts.open(`Произошла ошибка - ${err}`).subscribe();
-  }
-
-  navigateToCatalog() {
-    this.router.navigate(['/catalog']);
   }
 }

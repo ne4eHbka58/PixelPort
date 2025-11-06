@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { HeaderComponent } from '../../components/header.component/header.component';
 import { ProductCardListComponent } from '../../components/product-card-list.component/product-card-list.component';
-import { NgFor } from '@angular/common';
+import { CommonModule, NgFor } from '@angular/common';
 import { RouterLink } from '@angular/router';
 import { TuiItem } from '@taiga-ui/cdk/directives/item';
 import { TuiLink } from '@taiga-ui/core';
@@ -12,6 +12,7 @@ import { TuiBreadcrumbs } from '@taiga-ui/kit';
   imports: [
     HeaderComponent,
     ProductCardListComponent,
+    CommonModule,
     NgFor,
     RouterLink,
     TuiBreadcrumbs,

@@ -1,10 +1,10 @@
-import { Component, inject, Input } from '@angular/core';
+import { Component, EventEmitter, inject, Input, Output } from '@angular/core';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { TuiAlertService, TuiDialogService, TuiIcon } from '@taiga-ui/core';
 import { ProductCharacteristicResponseDTO } from '../../data/interfaces/product-characteristic-responseDTO.interface';
 import { ProductService } from '../../data/services/product.service';
 import { LoadingService } from '../../data/services/loading.service';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { ProductResponseDTO } from '../../data/interfaces/product-responseDTO.interface';
 
 @Component({
@@ -15,6 +15,7 @@ import { ProductResponseDTO } from '../../data/interfaces/product-responseDTO.in
   styleUrl: './product-info.component.less',
 })
 export class ProductInfoComponent {
+  // Входные данные
   @Input() productImageUrl: string = '/assets/images/phone.png'; // Ссылка на изображение
   @Input() productName: string = 'Product'; // Название товара
   @Input() manufacturerName: string = 'text'; // Производитель
@@ -27,8 +28,10 @@ export class ProductInfoComponent {
     { id: 3, characteristicName: 'Диагональ экрана', characteristicValue: '6.7' },
   ]; // Характеристики товара
 
+  // DTO
   product: ProductResponseDTO | null = null;
 
+  // Сервисы
   private productService = inject(ProductService);
   private loadingService = inject(LoadingService);
   private route = inject(ActivatedRoute);
@@ -38,6 +41,10 @@ export class ProductInfoComponent {
   isProductLoading = this.loadingService.isProductLoading;
 
   productId: number | undefined;
+
+  // Выходные данные для передачи в родительский компонент (BreadCrumbs)
+  @Output() productTitleChange = new EventEmitter<string>();
+  @Output() productIdChange = new EventEmitter<number>();
 
   ngOnInit() {
     this.productId = Number(this.route.snapshot.params['id']);
@@ -50,6 +57,10 @@ export class ProductInfoComponent {
       next: (product) => {
         this.product = product;
         this.loadingService.setProductLoading(false);
+
+        // Передаём данные в родительский компонент, чтобы вывести в breadcrumbs
+        this.productTitleChange.emit(this.product.productName);
+        this.productIdChange.emit(this.productId);
       },
       error: (error) => {
         console.error('Error loading product:', error);
@@ -58,7 +69,7 @@ export class ProductInfoComponent {
     });
   }
 
-  showShareDialog() {
+  copyUrlOnClick() {
     const currentUrl = window.location.href;
 
     navigator.clipboard

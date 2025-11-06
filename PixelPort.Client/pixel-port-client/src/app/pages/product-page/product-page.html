@@ -1,4 +1,14 @@
 <app-header></app-header>
 <div class="product-page__container">
-  <app-product-info></app-product-info>
+  <tui-breadcrumbs size="l" class="tui-space_top-2">
+    <ng-container *ngFor="let item of items">
+      <a *tuiItem tuiLink [routerLink]="item.routerLink">
+        {{ item.caption }}
+      </a>
+    </ng-container>
+  </tui-breadcrumbs>
+  <app-product-info
+    (productTitleChange)="onProductTitleChange($event)"
+    (productIdChange)="onProductIdChange($event)"
+  ></app-product-info>
 </div>

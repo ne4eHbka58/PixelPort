@@ -32,6 +32,7 @@ const PHONE_REGEX = /^(\+7|8)[\s\-]?\(?[0-9]{3}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}
   ],
 })
 export class CustomInputComponent implements ControlValueAccessor, Validator {
+  // Входные данные
   @Input() label: string = ''; // Текст подписи
   @Input() placeholder: string = ''; // Текст плейсхолдера
   @Input() type: string = 'text'; // Тип инпута
@@ -39,10 +40,12 @@ export class CustomInputComponent implements ControlValueAccessor, Validator {
   @Input() required: boolean = false; // Обязательное поле
   @Input() minLength: number = 0; // Обязательное поле
 
+  // Переменные
   value: string = '';
   isTouched: boolean = false;
   private validationErrors: ValidationErrors | null = null;
 
+  // Callback для изменений
   private onChange: (value: string) => void = () => {};
   private onTouched: () => void = () => {};
 
@@ -50,6 +53,7 @@ export class CustomInputComponent implements ControlValueAccessor, Validator {
     this.value = value || '';
   }
 
+  // Регистрация функций для изменений
   registerOnChange(fn: any): void {
     this.onChange = fn;
   }
@@ -105,6 +109,7 @@ export class CustomInputComponent implements ControlValueAccessor, Validator {
     return this.isTouched && this.validationErrors !== null;
   }
 
+  // Проверка на ошибки определённого типа
   hasError(errorType: string): boolean {
     return this.showErrors() && this.validationErrors![errorType] === true;
   }

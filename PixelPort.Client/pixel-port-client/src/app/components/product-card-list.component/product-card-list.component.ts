@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
   styleUrl: './product-card-list.component.less',
 })
 export class ProductCardListComponent {
+  // Сервисы
   private productService = inject(ProductService);
   private loadingService = inject(LoadingService);
   private router = inject(Router);
@@ -39,6 +40,7 @@ export class ProductCardListComponent {
     });
   }
 
+  // Переход на страницу товара
   goToProduct(productId: number) {
     this.router.navigate(['/product', productId]);
   }

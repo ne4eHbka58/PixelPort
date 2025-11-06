@@ -15,11 +15,13 @@ import { TuiAlertService } from '@taiga-ui/core';
   styleUrl: './login-form.component.less',
 })
 export class LoginFormComponent {
+  // Форма
   loginForm = new FormGroup({
     email: new FormControl('', [Validators.required]),
     password: new FormControl('', [Validators.required]),
   });
 
+  // Сервисы
   private authService = inject(AuthService);
   private loadingService = inject(LoadingService);
   private router = inject(Router);
@@ -64,7 +66,7 @@ export class LoginFormComponent {
       next: (user) => {
         this.loadingService.setUserLoading(false);
         console.log('Успешный вход:', user);
-        this.showNotification();
+        this.alerts.open('Вы успешно вошли в аккаунт').subscribe();
         // Перенаправляем пользователя
         this.router.navigate(['/']);
       },
@@ -72,7 +74,7 @@ export class LoginFormComponent {
         this.loadingService.setUserLoading(false);
         console.error('Ошибка входа:', error);
         this.errorMessage = this.getErrorMessage(error);
-        this.showNotificationError(this.errorMessage);
+        this.alerts.open(`Произошла ошибка - ${this.errorMessage}`).subscribe();
       },
     });
   }
@@ -98,13 +100,5 @@ export class LoginFormComponent {
       const blurEvent = new Event('blur', { bubbles: true });
       input.dispatchEvent(blurEvent);
     });
-  }
-
-  protected showNotification(): void {
-    this.alerts.open('Вы успешно вошли в аккаунт').subscribe();
-  }
-
-  protected showNotificationError(err: string): void {
-    this.alerts.open(`Произошла ошибка - ${err}`).subscribe();
   }
 }

@@ -21,6 +21,7 @@ import { TuiAlertService } from '@taiga-ui/core';
   styleUrl: './registration-form.component.less',
 })
 export class RegistrationFormComponent {
+  // Форма
   registerForm = new FormGroup(
     {
       firstName: new FormControl('', [Validators.required]),
@@ -36,6 +37,7 @@ export class RegistrationFormComponent {
     }
   );
 
+  // Сервисы
   private authService = inject(AuthService);
   private router = inject(Router);
   private readonly alerts = inject(TuiAlertService);
@@ -83,6 +85,7 @@ export class RegistrationFormComponent {
   }
 
   private handleRegistration(): void {
+    // Маппинг
     const registrationData: RegistrationRequestDTO = {
       email: this.registerForm.value.email!.trim(),
       password: this.registerForm.value.password!,
@@ -93,17 +96,18 @@ export class RegistrationFormComponent {
       roleId: 1,
     };
 
+    // Регистрация
     this.authService.register(registrationData).subscribe({
       next: () => {
         console.log('Успешная регистрация');
-        this.showNotification();
+        this.alerts.open('Вы успешно зарегистрированы').subscribe();
         this.router.navigate(['/auth'], {
           queryParams: { mode: 'login' },
         });
       },
       error: (error) => {
         this.errorMessage = this.handleRegistrationError(error);
-        this.showNotificationError(this.errorMessage);
+        this.alerts.open(`Произошла ошибка - ${this.errorMessage}`).subscribe();
       },
     });
   }
@@ -132,13 +136,5 @@ export class RegistrationFormComponent {
       const blurEvent = new Event('blur', { bubbles: true });
       input.dispatchEvent(blurEvent);
     });
-  }
-
-  protected showNotification(): void {
-    this.alerts.open('Вы успешно зарегистрированы').subscribe();
-  }
-
-  protected showNotificationError(err: string): void {
-    this.alerts.open(`Произошла ошибка - ${err}`).subscribe();
   }
 }
