@@ -1,27 +1,30 @@
 <div class="product-info">
+  @if (isProductLoading()) {
+  <span>Загрузка...</span>
+  } @else { @if (product) {
   <div class="product-info__container">
     <div class="product-info__img">
-      <img [src]="productImageSrc" />
+      <img [src]="product.imageUrl" />
     </div>
 
     <div class="product-info__info">
       <div class="product-info__name-text">
-        <h1>{{ productName }}</h1>
+        <h1>{{ product.productName }}</h1>
       </div>
 
       <div class="product-info__descript-text">
-        <p><span class="bold">Производитель:</span> {{ productManufacturer }}</p>
-        <p>{{ productDescription }}</p>
+        <p><span class="bold">Производитель:</span> {{ product.manufacturerName }}</p>
+        <p>{{ product.description }}</p>
       </div>
 
       <div class="product-info__actions">
         <div class="product-info__price-container">
           <!-- ПОФИКСИТЬ ВЫВОД ЧЕРЕЗ ЗАПЯТУЮ -->
-          <p>{{ productPrice | number : '1.0-0' }} ₽</p>
+          <p>{{ product.price | number : '1.0-0' }} ₽</p>
           <button class="product-info__buy-button">Купить</button>
         </div>
         <div class="product-info__share-container">
-          <button class="product-info__share-button">
+          <button class="product-info__share-button" (click)="showShareDialog()">
             <tui-icon icon="@tui.share-2" [style.font-size.rem]="2" />
           </button>
         </div>
@@ -30,13 +33,23 @@
       <div class="product-info--characteristics">
         <table>
           <tbody>
-            <tr *ngFor="let characteristic of characteristics">
+            @for (characteristic of product.characteristics; track
+            characteristic.characteristicName){
+            <tr>
               <td class="bold">{{ characteristic.characteristicName }}:</td>
               <td>{{ characteristic.characteristicValue }}</td>
             </tr>
+            }
           </tbody>
         </table>
       </div>
     </div>
   </div>
+  } @else {
+  <div class="product-info__no-products">
+    <h3>Ошибка, попробуйте позже</h3>
+    <p>Не удалось загрузить товары. Пожалуйста, попробуйте обновить страницу.</p>
+    <button (click)="loadProduct()" class="product-info__retry-btn">Попробовать снова</button>
+  </div>
+  } }
 </div>

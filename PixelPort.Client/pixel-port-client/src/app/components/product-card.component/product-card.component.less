@@ -2,21 +2,39 @@
 
 .product-card {
   width: 300px;
-  height: 430px;
+  height: 450px;
   padding: 20px 30px 15px;
   background-color: @card-bg-color;
   display: flex;
   flex-direction: column;
   align-items: flex-start;
+  position: relative;
   gap: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
   transition: all 0.3s ease;
+
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  }
 
   &__title {
     color: @main-text-color;
-    font-size: 25px;
+    font-size: 1.6rem;
     font-weight: 300;
     margin: 0;
+
+    /* Стили для ограничения в 2 строки */
+    display: -webkit-box;
+    line-clamp: 2;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    /* Дополнительно для кроссбраузерности */
+    line-height: 1.3; /* Важно для правильного отображения */
+    max-height: 2.6em; /* line-height × количество строк */
   }
 
   &__image-container {
@@ -27,18 +45,31 @@
   &__image {
     width: 285px;
     height: 240px;
-    object-fit: cover; 
+    object-fit: cover;
   }
- 
+
+  &__header {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1; /* Заставляет этот блок занимать всё доступное пространство */
+    width: 100%; /* Чтобы кнопка растягивалась на всю ширину */
+
+    & > h3,
+    & > p {
+      margin-block: 0.3rem;
+    }
+  }
 }
 .product-card__buy-button {
-    width: 285px;
-    height: 40px;
-    background-color: #1DB357;
-    cursor: pointer;
-    border: #1DB357;
-    color: #ffffff;
-    &:hover {
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
-    }
+  width: 285px;
+  height: 40px;
+  background-color: @green-color;
+  cursor: pointer;
+  border: @green-color;
+  color: #ffffff;
+  margin-top: auto;
+
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.25);
+  }
 }

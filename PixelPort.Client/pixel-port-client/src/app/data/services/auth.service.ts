@@ -5,15 +5,16 @@ import { HttpClient } from '@angular/common/http';
 import { LoginResponseDTO } from '../interfaces/login-responseDTO.interface';
 import { UserDTO } from '../interfaces/userDTO.interface';
 import { RegistrationRequestDTO } from '../interfaces/registration-requestDTO.interface';
+import { API_CONFIG } from '../../config/api.config';
 
 @Injectable({
   providedIn: 'root',
 })
 export class AuthService {
-  private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+  private isAuthenticatedSubject = new BehaviorSubject<boolean | null>(null);
   public isAuthenticated$ = this.isAuthenticatedSubject.asObservable();
 
-  baseApiUrl = 'http://localhost:5038/api/';
+  baseApiUrl = API_CONFIG.baseUrl;
 
   constructor(private http: HttpClient) {
     this.checkAuthStatus();
@@ -63,6 +64,7 @@ export class AuthService {
       .subscribe({
         next: (response) => {
           if (response !== null && response !== undefined) {
+            console.log('IsAuthenticated = ' + response.authenticated);
             this.isAuthenticatedSubject.next(response.authenticated);
           } else {
             this.isAuthenticatedSubject.next(false);

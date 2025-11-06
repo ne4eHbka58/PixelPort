@@ -89,8 +89,9 @@ namespace PixelPort.Server.Repository
             {
                 "id" => sortDesc ? query.OrderByDescending(p => p.Id) : query.OrderBy(p => p.Id),
                 "price" => sortDesc ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
-                "date" => sortDesc ? query.OrderByDescending(p => p.CreatedDate) : query.OrderBy(p => p.CreatedDate),
+                "createdDate" => sortDesc ? query.OrderByDescending(p => p.CreatedDate) : query.OrderBy(p => p.CreatedDate),
                 "rate" => sortDesc ? query.OrderByDescending(p => p.Rate) : query.OrderBy(p => p.Rate),
+                "name" => sortDesc ? query.OrderByDescending(p => p.ProductName) : query.OrderBy(p => p.ProductName),
                 _ => sortDesc ? query.OrderByDescending(p => p.ProductName) : query.OrderBy(p => p.ProductName)
             };
 

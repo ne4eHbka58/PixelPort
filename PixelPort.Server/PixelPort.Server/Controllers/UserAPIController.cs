@@ -84,7 +84,7 @@ namespace PixelPort.Server.Controllers
                 {
                     HttpOnly = true,
                     Secure = false, // false для http
-                    SameSite = SameSiteMode.None, // Сейчас стоит Lax для тестов, для https поставить None
+                    SameSite = SameSiteMode.Lax, // Сейчас стоит Lax для тестов, для https поставить None
                     Expires = DateTime.UtcNow.AddDays(7),
                     Path = "/"
                 });

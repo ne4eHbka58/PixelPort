@@ -1,7 +1,7 @@
 import { ChangeDetectionStrategy, Component, inject, signal } from '@angular/core';
 import { ReactiveFormsModule } from '@angular/forms';
 import { AsyncPipe } from '@angular/common';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { SearchComponent } from '../search.component/search.component';
 import { TuiIcon, TuiButton, TuiDropdown, TuiAlertService } from '@taiga-ui/core';
 import { UserDTO } from '../../data/interfaces/userDTO.interface';
@@ -35,6 +35,7 @@ export class HeaderComponent {
   private authService = inject(AuthService);
   private loadingService = inject(LoadingService);
   private readonly alerts = inject(TuiAlertService);
+  private router = inject(Router);
 
   isAuthenticated$ = this.authService.isAuthenticated$;
   currentUser = signal<UserDTO | null>(null);
@@ -100,5 +101,9 @@ export class HeaderComponent {
 
   protected showNotificationError(err: string): void {
     this.alerts.open(`Произошла ошибка - ${err}`).subscribe();
+  }
+
+  navigateToCatalog() {
+    this.router.navigate(['/catalog']);
   }
 }

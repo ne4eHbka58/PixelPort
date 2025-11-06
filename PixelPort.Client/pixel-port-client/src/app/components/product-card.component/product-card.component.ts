@@ -9,8 +9,8 @@ import { Component, Input } from '@angular/core';
   styleUrl: './product-card.component.less',
 })
 export class ProductCardComponent {
-  @Input() title: string = 'БабушкафонХ3500'; 
-  @Input() imageSrc: string = '/assets/images/phone.png';
-  @Input() type: string = 'Телефон';
-  @Input() price: number = 10000 ;
+  @Input() title: string = 'БабушкафонХ3500';
+  @Input() imageUrl: string = '/assets/images/phone.png';
+  @Input() categoryName: string = 'Телефон';
+  @Input() price: number = 10000;
 }

@@ -1,5 +1,5 @@
 <app-header></app-header>
-<div class="catalog-page__container">
+<div class="catalog-category-page__container">
   <tui-breadcrumbs size="l" class="tui-space_top-2">
     <ng-container *ngFor="let item of items">
       <a *tuiItem tuiLink [routerLink]="item.routerLink">
@@ -7,5 +7,5 @@
       </a>
     </ng-container>
   </tui-breadcrumbs>
-  <app-product-card-list></app-product-card-list>
+  <app-catalog-categories-list></app-catalog-categories-list>
 </div>

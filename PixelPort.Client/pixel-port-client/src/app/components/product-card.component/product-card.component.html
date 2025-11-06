@@ -1,10 +1,10 @@
 <div class="product-card">
   <div class="product-card__image-container">
-    <img [src]="imageSrc" class="product-card__image" />
+    <img [src]="imageUrl" class="product-card__image" />
   </div>
   <div class="product-card__header">
-    <h3 class="product-card__title">{{ title }}</h3>
-    <h4 class="product-card__type">{{ type }}</h4>
+    <h2 class="product-card__title">{{ title }}</h2>
+    <h3 class="product-card__type">{{ categoryName }}</h3>
     <p class="product-card__price">Цена: {{ price | number : '1.0-0' }} ₽</p>
     <button class="product-card__buy-button">Купить</button>
   </div>

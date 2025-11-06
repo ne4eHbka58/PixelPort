@@ -1,27 +1,27 @@
 import { Component } from '@angular/core';
 import { HeaderComponent } from '../../components/header.component/header.component';
-import { ProductCardListComponent } from '../../components/product-card-list.component/product-card-list.component';
+import { CatalogCategoriesListComponent } from '../../components/catalog-categories-list.component/catalog-categories-list.component';
 import { NgFor } from '@angular/common';
 import { RouterLink } from '@angular/router';
+import { TuiBreadcrumbs } from '@taiga-ui/kit';
 import { TuiItem } from '@taiga-ui/cdk/directives/item';
 import { TuiLink } from '@taiga-ui/core';
-import { TuiBreadcrumbs } from '@taiga-ui/kit';
 
 @Component({
-  selector: 'app-search-page',
+  selector: 'app-catalog-page',
   imports: [
     HeaderComponent,
-    ProductCardListComponent,
+    CatalogCategoriesListComponent,
     NgFor,
     RouterLink,
     TuiBreadcrumbs,
     TuiItem,
     TuiLink,
   ],
-  templateUrl: './catalog-page.html',
-  styleUrl: './catalog-page.less',
+  templateUrl: './catalog-category-page.html',
+  styleUrl: './catalog-category-page.less',
 })
-export class CatalogPage {
+export class CatalogCategoryPage {
   protected items = [
     {
       caption: 'PixelPort',

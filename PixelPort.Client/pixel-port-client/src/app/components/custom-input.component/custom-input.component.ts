@@ -71,8 +71,6 @@ export class CustomInputComponent implements ControlValueAccessor, Validator {
   }
 
   validate(control: AbstractControl): ValidationErrors | null {
-    console.log('Validate()');
-
     const value = control.value;
     const errors: ValidationErrors = {};
 

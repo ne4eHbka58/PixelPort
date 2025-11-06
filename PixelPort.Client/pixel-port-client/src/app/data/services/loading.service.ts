@@ -6,15 +6,20 @@ import { Injectable, signal } from '@angular/core';
 export class LoadingService {
   // Сигналы для различных типов загрузки
   private userLoading = signal<boolean>(false);
-  private generalLoading = signal<boolean>(false);
+  private productsLoading = signal<boolean>(false);
+  private productLoading = signal<boolean>(false);
 
   // Геттеры
   get isUserLoading() {
     return this.userLoading.asReadonly();
   }
 
-  get isLoading() {
-    return this.generalLoading.asReadonly();
+  get isProductsLoading() {
+    return this.productsLoading.asReadonly();
+  }
+
+  get isProductLoading() {
+    return this.productLoading.asReadonly();
   }
 
   // Сеттеры
@@ -22,7 +27,11 @@ export class LoadingService {
     this.userLoading.set(state);
   }
 
-  setLoading(state: boolean): void {
-    this.generalLoading.set(state);
+  setProductsLoading(state: boolean): void {
+    this.productsLoading.set(state);
+  }
+
+  setProductLoading(state: boolean): void {
+    this.productLoading.set(state);
   }
 }
