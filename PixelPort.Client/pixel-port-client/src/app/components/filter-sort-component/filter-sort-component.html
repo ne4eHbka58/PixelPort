@@ -1,0 +1,173 @@
+<div class="filter-sort">
+  <button
+    tuiButton
+    type="button"
+    size="m"
+    [tuiDropdown]="sortOptionsContent"
+    [(tuiDropdownOpen)]="openSort"
+    class="filter-sort__button"
+  >
+    <tui-icon icon="@tui.arrow-up-down"></tui-icon>
+    {{ getSortLabel(currentSort.sortBy, currentSort.sortDesc) }}
+    <tui-icon icon="@tui.chevron-down" [style.font-size.rem]="1" />
+  </button>
+
+  <button
+    tuiButton
+    type="button"
+    size="m"
+    [tuiDropdown]="setManufacturersContent"
+    [(tuiDropdownOpen)]="openManufacturers"
+    class="filter-sort__button"
+  >
+    Производители @if (currentFilters.manufacturerIds.length > 0) { ({{
+      currentFilters.manufacturerIds.length
+    }}) }
+    <tui-icon icon="@tui.chevron-down" [style.font-size.rem]="1" />
+  </button>
+
+  <button
+    tuiButton
+    type="button"
+    size="m"
+    [tuiDropdown]="setCategoryContent"
+    [(tuiDropdownOpen)]="openCategories"
+    class="filter-sort__button"
+  >
+    {{ selectedCategory.categoryName }}
+    <tui-icon icon="@tui.chevron-down" [style.font-size.rem]="1" />
+  </button>
+
+  <button
+    tuiButton
+    type="button"
+    size="m"
+    [tuiDropdown]="setPriceContent"
+    [(tuiDropdownOpen)]="openPrices"
+    class="filter-sort__button"
+  >
+    Цена, ₽
+    <tui-icon icon="@tui.chevron-down" [style.font-size.rem]="1" />
+  </button>
+
+  <ng-template #sortOptionsContent class="filter-sort__dropdown">
+    <tui-data-list>
+      @for (option of sortOptions; track option.label) {
+      <button
+        tuiOption
+        new
+        (click)="selectSort(option)"
+        [class.selected]="option.label === selectedSort.label"
+      >
+        {{ option.label }}
+      </button>
+      }
+    </tui-data-list>
+  </ng-template>
+
+  <ng-template #setManufacturersContent class="filter-sort__dropdown">
+    <tui-data-list class="filter-sort__manufacturers-list">
+      <!-- Чекбокс "Все производители" -->
+      <label tuiOption new class="filter-sort__select-all-option">
+        <input
+          tuiCheckbox
+          type="checkbox"
+          [ngModel]="selectAllManufacturers"
+          (ngModelChange)="onSelectAllManufacturersToggle($event)"
+        />
+        Все производители
+      </label>
+
+      <!-- Список производителей -->
+      @for (manufacturer of manufacturers; track manufacturer.id) {
+      <label tuiOption new>
+        <input
+          tuiCheckbox
+          type="checkbox"
+          [ngModel]="selectedManufacturers.has(manufacturer.id)"
+          (ngModelChange)="onManufacturerToggle(manufacturer.id, $event)"
+        />
+        {{ manufacturer.manufacturerName }}
+      </label>
+      }
+    </tui-data-list>
+  </ng-template>
+
+  <ng-template #setCategoryContent class="filter-sort__dropdown">
+    <tui-data-list>
+      <button
+        tuiOption
+        new
+        (click)="selectCategory(allCategoriesOption)"
+        [class.selected]="selectedCategory.id === 'all'"
+      >
+        {{ allCategoriesOption.categoryName }}
+      </button>
+      @for (category of categories; track category.id) {
+      <button
+        tuiOption
+        new
+        (click)="selectCategory(category)"
+        [class.selected]="selectedCategory.id === category.id"
+      >
+        {{ category.categoryName }}
+      </button>
+      }
+    </tui-data-list>
+  </ng-template>
+
+  <ng-template #setPriceContent class="filter-sort__dropdown">
+    <div class="filter-sort__price-filter">
+      <h3>Диапазон цен</h3>
+
+      <div class="filter-sort__price-inputs">
+        <label class="filter-sort__price-label">
+          От
+          <input
+            type="number"
+            [min]="0"
+            [max]="maxPrice || maxAvailablePrice"
+            [(ngModel)]="minPrice"
+            class="filter-sort__price-input"
+            placeholder="0"
+          />
+        </label>
+        <label class="filter-sort__price-label">
+          До
+          <input
+            type="number"
+            [min]="minPrice || 0"
+            [max]="maxAvailablePrice"
+            [(ngModel)]="maxPrice"
+            class="filter-sort__price-input"
+            [placeholder]="maxAvailablePrice.toString()"
+          />
+        </label>
+      </div>
+
+      <div class="filter-sort__price-actions">
+        @if (hasActivePriceFilter) {
+        <button
+          tuiButton
+          type="button"
+          size="m"
+          appearance="secondary"
+          (click)="resetPriceFilter()"
+          class="filter-sort__price-button filter-sort__button"
+        >
+          Сбросить
+        </button>
+        }
+        <button
+          tuiButton
+          type="button"
+          size="m"
+          (click)="applyPriceFilter()"
+          class="filter-sort__price-button filter-sort__apply-button"
+        >
+          Готово
+        </button>
+      </div>
+    </div>
+  </ng-template>
+</div>

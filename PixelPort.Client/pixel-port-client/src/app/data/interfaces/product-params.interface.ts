@@ -1,6 +1,6 @@
 export interface ProductFilterParams {
   search?: string;
-  categoryIds?: number[];
+  categoryId?: number;
   manufacturerIds?: number[];
   minPrice?: number;
   maxPrice?: number;

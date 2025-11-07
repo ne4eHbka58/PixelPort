@@ -48,6 +48,9 @@ namespace PixelPort.Server
 
             CreateMap<RegistrationRequestDTO, User>();
 
+            CreateMap<Category, CategoryResponseDTO>();
+
+            CreateMap<Manufacturer, ManufacturerResponseDTO>();
         }
     }
 }

@@ -7,7 +7,7 @@ namespace PixelPort.Server.Repository.IRepository
     public interface IProductRepository : IRepository<Product>
     {
         Task<List<Product>> GetAllWithDetailsAsync(string search = null,
-            List<int> categoryIds = null,
+            int? categoryId = null,
             List<int> manufacturerIds = null,
             decimal? minPrice = null,
             decimal? maxPrice = null,

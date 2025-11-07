@@ -26,7 +26,7 @@ export class AuthService {
         withCredentials: true,
       })
       .pipe(
-        map((response) => response.User),
+        map((response) => response.user),
         tap((response) => {
           this.isAuthenticatedSubject.next(true);
         })

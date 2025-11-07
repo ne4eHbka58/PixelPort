@@ -19,14 +19,23 @@ namespace PixelPort.Server.Controllers
     public class ProductAPIController : ControllerBase
     {
         private readonly IProductRepository _dbProduct;
+        private readonly ICategoryRepository _dbCategory;
+        private readonly IManufacturerRepository _dbManufacturer;
 
         private readonly ILogger<ProductAPIController> _logger;
 
         private readonly IMapper _mapper;
 
-        public ProductAPIController(IProductRepository dbProduct, ILogger<ProductAPIController> logger, IMapper mapper)
+        public ProductAPIController(
+            IProductRepository dbProduct,
+            ICategoryRepository dbCategory,
+            IManufacturerRepository dbManufacturer,
+            ILogger<ProductAPIController> logger,
+            IMapper mapper)
         {
             _dbProduct = dbProduct;
+            _dbCategory = dbCategory;
+            _dbManufacturer = dbManufacturer;
             _logger = logger;
             _mapper = mapper;
         }
@@ -35,9 +44,9 @@ namespace PixelPort.Server.Controllers
         [HttpGet("", Name = "GetProducts")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ProductResponseDTO>>> Get(
+        public async Task<ActionResult<List<ProductResponseDTO>>> GetProducts(
             [FromQuery] string search = null,
-            [FromQuery] List<int> categoryIds = null,
+            [FromQuery] int? categoryId = null,
             [FromQuery] List<int> manufacturerIds = null,
             [FromQuery] decimal? minPrice = null,
             [FromQuery] decimal? maxPrice = null,
@@ -47,7 +56,7 @@ namespace PixelPort.Server.Controllers
             try // Получаем все товары
             {
                 IEnumerable<Product> productsList = await _dbProduct.GetAllWithDetailsAsync(
-            search, categoryIds, manufacturerIds, minPrice, maxPrice, sortBy, sortDesc);
+            search, categoryId, manufacturerIds, minPrice, maxPrice, sortBy, sortDesc);
 
                 _logger.LogInformation("Getting all products");
 
@@ -229,6 +238,48 @@ namespace PixelPort.Server.Controllers
                 _logger.LogInformation($"ERROR: Update Product with Id = {productId} - {ex.Message}");
 
                 return StatusCode(500);
+            }
+        }
+
+        [HttpGet("getcategories", Name = "GetCategories")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<Category>>> GetCategories()
+        {
+            try // Получаем все товары
+            {
+                IEnumerable<Category> categoriesList = await _dbCategory.GetAllAsync();
+
+                _logger.LogInformation("Getting all categories");
+
+                return StatusCode(200, _mapper.Map<List<CategoryResponseDTO>>(categoriesList));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"ERROR: Get all categories - {ex.Message}");
+
+                return StatusCode(404);
+            }
+        }
+
+        [HttpGet("getmanufacturers", Name = "GetManufacturers")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<List<ManufacturerResponseDTO>>> GetManufacturers()
+        {
+            try // Получаем все товары
+            {
+                IEnumerable<Manufacturer> manufacturersList = await _dbManufacturer.GetAllAsync();
+
+                _logger.LogInformation("Getting all manufacturers");
+
+                return StatusCode(200, _mapper.Map<List<ManufacturerResponseDTO>>(manufacturersList));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogInformation($"ERROR: Get all manufacturers - {ex.Message}");
+
+                return StatusCode(404);
             }
         }
     }

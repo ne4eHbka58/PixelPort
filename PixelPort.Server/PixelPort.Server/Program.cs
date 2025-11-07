@@ -24,6 +24,8 @@ builder.Services.AddDbContext<PixelPortDbContext>(option =>
 builder.Services.AddScoped<IProductRepository, ProductRepository>();
 builder.Services.AddScoped<IProductCharacteristicRepository, ProductCharacteristicRepository>();
 builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
+builder.Services.AddScoped<IManufacturerRepository, ManufacturerRepository>();
 builder.Services.AddScoped<IHashing, Hashing>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
 
@@ -78,33 +80,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             }
         };
     });
-
-//builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
-//    .AddCookie(options =>
-//    {
-//        options.Cookie.HttpOnly = true; // Недоступно из Javascript
-//        options.Cookie.SecurePolicy = CookieSecurePolicy.None; // Для development
-//        options.Cookie.SameSite = SameSiteMode.None; // Для CORS - разрешение кросс-доменных запросов
-//        options.Cookie.Name = "auth_token";
-//        options.ExpireTimeSpan = TimeSpan.FromDays(7);
-//        options.SlidingExpiration = true; // Обновляет срок активности
-
-//        options.Events = new CookieAuthenticationEvents
-//        {
-//            OnRedirectToLogin = context =>
-//            {
-//                // Для API - возвращаем 401 вместо редиректа на логин
-//                context.Response.StatusCode = 401;
-//                return Task.CompletedTask;
-//            },
-//            OnRedirectToAccessDenied = context =>
-//            {
-//                // Для API - возвращаем 403 вместо редиректа
-//                context.Response.StatusCode = 403;
-//                return Task.CompletedTask;
-//            }
-//        };
-//    });
 
 builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle

@@ -58,8 +58,8 @@ export class LoginFormComponent {
 
   private handleLogin() {
     const credentials: LoginRequestDTO = {
-      Email: this.loginForm.value.email!.trim(), // Нотация с ! так как мы проверили valid
-      Password: this.loginForm.value.password!,
+      email: this.loginForm.value.email!.trim(), // Нотация с ! так как мы проверили valid
+      password: this.loginForm.value.password!,
     };
 
     this.authService.login(credentials).subscribe({

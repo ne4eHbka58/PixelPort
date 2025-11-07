@@ -1,17 +1,24 @@
 <div class="product-card-list">
   @if (isProductsLoading()) {
   <span>Загрузка...</span>
-  } @else { @if (products && products.length > 0) { @for (product of products; track product.id) {
-  <div class="product-card-list__product-card">
-    <app-product-card
-      [title]="product.productName"
-      [imageUrl]="product.imageUrl"
-      [categoryName]="product.categoryName"
-      [price]="product.price"
-      (click)="goToProduct(product.id)"
-    ></app-product-card>
+  } @else { @if (products && products.length > 0) {
+  <div class="product-card-list__filter-controls">
+    <app-filter-sort [maxAvailablePrice]="maxAvailablePrice" />
   </div>
-  } } @else {
+  <div class="product-card-list__container">
+    @for (product of products; track product.id) {
+    <div class="product-card-list__product-card">
+      <app-product-card
+        [title]="product.productName"
+        [imageUrl]="product.imageUrl"
+        [categoryName]="product.categoryName"
+        [price]="product.price"
+        (click)="goToProduct(product.id)"
+      ></app-product-card>
+    </div>
+    }
+  </div>
+  } @else {
   <div class="product-card-list__no-products">
     <h3>Ничего не найдено</h3>
     <p>
