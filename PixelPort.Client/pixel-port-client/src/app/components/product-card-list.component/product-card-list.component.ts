@@ -4,6 +4,9 @@ import { ProductResponseDTO } from '../../data/interfaces/product-responseDTO.in
 import { LoadingService } from '../../data/services/loading.service';
 import { ProductService } from '../../data/services/product.service';
 import { Router } from '@angular/router';
+import { SearchService } from '../../data/services/search.service';
+import { debounceTime, switchMap } from 'rxjs';
+import { ProductFilterParams } from '../../data/interfaces/product-params.interface';
 
 @Component({
   selector: 'app-product-card-list',
@@ -16,6 +19,7 @@ export class ProductCardListComponent {
   // Сервисы
   private productService = inject(ProductService);
   private loadingService = inject(LoadingService);
+  private searchService = inject(SearchService);
   private router = inject(Router);
 
   isProductsLoading = this.loadingService.isProductsLoading;
@@ -24,11 +28,20 @@ export class ProductCardListComponent {
 
   ngOnInit() {
     this.loadProducts();
+
+    // Подписываемся на изменения поиска
+    this.searchService.search$
+      .pipe(
+        debounceTime(300) // добавляем debounce для оптимизации
+      )
+      .subscribe((searchTerm) => {
+        this.loadProducts({ search: searchTerm });
+      });
   }
 
-  loadProducts() {
+  loadProducts(params?: ProductFilterParams) {
     this.loadingService.setProductsLoading(true);
-    this.productService.getAllProducts().subscribe({
+    this.productService.getAllProducts(params).subscribe({
       next: (products) => {
         this.products = products;
         this.loadingService.setProductsLoading(false);

@@ -20,11 +20,16 @@ export class ProductService {
     if (params?.search) {
       httpParams = httpParams.set('search', params.search);
     }
-    if (params?.categoryId) {
-      httpParams = httpParams.set('categoryId', params.categoryId.toString());
+    if (params?.categoryIds && params.categoryIds.length > 0) {
+      params.categoryIds.forEach((id) => {
+        httpParams = httpParams.append('categoryIds', id.toString());
+      });
     }
-    if (params?.manufacturerId) {
-      httpParams = httpParams.set('manufacturerId', params.manufacturerId.toString());
+
+    if (params?.manufacturerIds && params.manufacturerIds.length > 0) {
+      params.manufacturerIds.forEach((id) => {
+        httpParams = httpParams.append('manufacturerIds', id.toString());
+      });
     }
     if (params?.minPrice) {
       httpParams = httpParams.set('minPrice', params.minPrice.toString());

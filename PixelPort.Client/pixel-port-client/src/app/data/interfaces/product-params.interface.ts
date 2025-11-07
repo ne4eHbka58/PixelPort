@@ -1,7 +1,7 @@
 export interface ProductFilterParams {
   search?: string;
-  categoryId?: number;
-  manufacturerId?: number;
+  categoryIds?: number[];
+  manufacturerIds?: number[];
   minPrice?: number;
   maxPrice?: number;
   sortBy?: 'name' | 'price' | 'rate' | 'createdDate';

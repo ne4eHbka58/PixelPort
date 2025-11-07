@@ -2,7 +2,7 @@
   <form [formGroup]="form">
     <fieldset tuiTextfieldSize="s">
       <tui-textfield iconStart="@tui.search" class="search-field">
-        <input formControlName="search" placeholder="Поиск" tuiTextfield />
+        <input #searchInput formControlName="search" placeholder="Поиск" tuiTextfield />
       </tui-textfield>
     </fieldset>
   </form>

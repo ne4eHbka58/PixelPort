@@ -37,8 +37,8 @@ namespace PixelPort.Server.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult<List<ProductResponseDTO>>> Get(
             [FromQuery] string search = null,
-            [FromQuery] int? categoryId = null,
-            [FromQuery] int? manufacturerId = null,
+            [FromQuery] List<int> categoryIds = null,
+            [FromQuery] List<int> manufacturerIds = null,
             [FromQuery] decimal? minPrice = null,
             [FromQuery] decimal? maxPrice = null,
             [FromQuery] string sortBy = "name",
@@ -47,7 +47,7 @@ namespace PixelPort.Server.Controllers
             try // Получаем все товары
             {
                 IEnumerable<Product> productsList = await _dbProduct.GetAllWithDetailsAsync(
-            search, categoryId, manufacturerId, minPrice, maxPrice, sortBy, sortDesc);
+            search, categoryIds, manufacturerIds, minPrice, maxPrice, sortBy, sortDesc);
 
                 _logger.LogInformation("Getting all products");
 

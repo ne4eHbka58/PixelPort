@@ -42,8 +42,8 @@ namespace PixelPort.Server.Repository
             return product;
         }
         public async Task<List<Product>> GetAllWithDetailsAsync(string search = null,
-            int? categoryId = null,
-            int? manufacturerId = null,
+            List<int> categoryIds = null,
+            List<int> manufacturerIds = null,
             decimal? minPrice = null,
             decimal? maxPrice = null,
             string sortBy = "name",
@@ -65,14 +65,14 @@ namespace PixelPort.Server.Repository
                 query = query.Where(p => p.ProductName.Contains(search));
             }
 
-            if (categoryId.HasValue)
+            if (categoryIds != null && categoryIds.Any())
             {
-                query = query.Where(p => p.CategoryID == categoryId.Value);
+                query = query.Where(p => categoryIds.Contains(p.CategoryID));
             }
 
-            if (manufacturerId.HasValue)
+            if (manufacturerIds != null && manufacturerIds.Any())
             {
-                query = query.Where(p => p.ManufacturerID == manufacturerId.Value);
+                query = query.Where(p => manufacturerIds.Contains(p.ManufacturerID));
             }
 
             if (minPrice.HasValue)
