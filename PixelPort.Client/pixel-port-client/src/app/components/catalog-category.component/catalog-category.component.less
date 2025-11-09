@@ -26,12 +26,12 @@
 
   &__image-container {
     display: flex;
-    background-color: @dark-card-bg-color;
+    align-self: center;
   }
 
   &__image {
-    width: 370px;
+    width: 430px;
     height: 300px;
-    object-fit: cover; // Заполнение родительского элемента с сохранением пропорций. Непоместившееся обрезается
+    object-fit: contain; // Заполнение родительского элемента с сохранением пропорций. Непоместившееся обрезается
   }
 }
