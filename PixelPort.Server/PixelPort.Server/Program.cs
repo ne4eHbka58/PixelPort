@@ -125,6 +125,7 @@ app.UseCors("AllowAngularApp");
 
 //app.UseHttpsRedirection();
 
+// Починить Авторизацию в свагере
 app.UseAuthentication();
 app.UseAuthorization();
 

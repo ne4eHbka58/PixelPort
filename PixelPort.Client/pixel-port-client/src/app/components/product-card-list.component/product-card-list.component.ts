@@ -35,14 +35,6 @@ export class ProductCardListComponent {
   ngOnInit() {
     this.subscribeToAllFilters();
     this.loadProducts();
-    // Подписываемся на изменения поиска
-    // this.searchService.search$
-    //   .pipe(
-    //     debounceTime(300) // добавляем debounce для оптимизации
-    //   )
-    //   .subscribe((searchTerm) => {
-    //     this.loadProducts({ search: searchTerm });
-    //   });
   }
 
   private subscribeToAllFilters() {

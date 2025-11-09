@@ -12,14 +12,13 @@ export const routes: Routes = [
     component: AuthPage,
     canActivate: [authRedirectGuard],
   },
-  // { path: 'product-info', component: ProductPage },
   { path: 'product/:id', component: ProductPage },
   { path: 'catalog-categories', component: CatalogCategoryPage },
   { path: '', redirectTo: '/catalog-categories', pathMatch: 'full' },
   { path: 'catalog', component: CatalogPage },
   {
     path: 'admin',
-    component: ProductPage,
+    component: CatalogPage,
     canActivate: [AuthAdminGuard],
   },
 ];

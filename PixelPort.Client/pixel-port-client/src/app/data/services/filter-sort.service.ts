@@ -4,7 +4,6 @@ import { CategoryResponseDTO } from '../interfaces/category-responseDTO.interfac
 import { API_CONFIG } from '../../config/api.config';
 import { HttpClient } from '@angular/common/http';
 import { ManufacturerResponseDTO } from '../interfaces/manufacturer-responseDTO.interface';
-import { ProductFilterParams } from '../interfaces/product-params.interface';
 
 @Injectable({
   providedIn: 'root',

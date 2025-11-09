@@ -10,7 +10,6 @@ import { TuiIcon, TuiDataList } from '@taiga-ui/core';
 import { TuiSelectModule } from '@taiga-ui/legacy';
 import { FilterSortService } from '../../data/services/filter-sort.service';
 import { ManufacturerResponseDTO } from '../../data/interfaces/manufacturer-responseDTO.interface';
-import { ProductFilterParams } from '../../data/interfaces/product-params.interface';
 import { CategoryResponseDTO } from '../../data/interfaces/category-responseDTO.interface';
 import { TuiInputNumber } from '@taiga-ui/kit';
 import { combineLatest, take } from 'rxjs';
@@ -93,7 +92,7 @@ export class FilterSortComponent {
   protected maxPrice: number | null = null;
 
   // Получаем мин/макс цены через Input от родителя
-  @Input() maxAvailablePrice: number = 100000;
+  @Input() maxAvailablePrice: number = 1000000;
 
   // Методы
 
@@ -194,7 +193,7 @@ export class FilterSortComponent {
     this.applyManufacturerFilter();
   }
 
-  private applyManufacturerFilter() {
+  protected applyManufacturerFilter() {
     // Преобразуем Set в Array
     let manufacturerIds: number[];
     if (this.selectAllManufacturers) {
@@ -232,12 +231,6 @@ export class FilterSortComponent {
       this.filterSortService.setCategoryFilter(Number(category.id));
       this.selectedCategory = category;
     }
-  }
-
-  protected getCategoryName(categoryId: number | null): string {
-    if (!categoryId) return '';
-    const category = this.categories.find((c) => c.id === categoryId.toString());
-    return category?.categoryName || '';
   }
 
   // Цены
