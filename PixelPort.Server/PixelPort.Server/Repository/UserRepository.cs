@@ -4,7 +4,6 @@ using Microsoft.IdentityModel.Tokens;
 using PixelPort.Server.Data;
 using PixelPort.Server.Models;
 using PixelPort.Server.Models.Dto;
-using PixelPort.Server.Models.DTO;
 using PixelPort.Server.Repository.IRepository;
 using PixelPort.Server.Services.IServices;
 using System.IdentityModel.Tokens.Jwt;

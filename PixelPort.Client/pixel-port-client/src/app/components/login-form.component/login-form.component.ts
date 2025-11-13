@@ -66,7 +66,7 @@ export class LoginFormComponent {
       next: (user) => {
         this.loadingService.setUserLoading(false);
         console.log('Успешный вход:', user);
-        this.alerts.open('Вы успешно вошли в аккаунт').subscribe();
+        this.alerts.open('Вы успешно вошли в аккаунт', { appearance: 'positive' }).subscribe();
         // Перенаправляем пользователя
         this.router.navigate(['/']);
       },
@@ -74,7 +74,13 @@ export class LoginFormComponent {
         this.loadingService.setUserLoading(false);
         console.error('Ошибка входа:', error);
         this.errorMessage = this.getErrorMessage(error);
-        this.alerts.open(`Произошла ошибка - ${this.errorMessage}`).subscribe();
+        this.alerts
+          .open(`Произошла ошибка - ${this.errorMessage}`, {
+            appearance: 'negative',
+            closeable: false,
+            autoClose: 5000,
+          })
+          .subscribe();
       },
     });
   }

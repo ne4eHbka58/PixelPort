@@ -1,9 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity.Data;
-using Microsoft.AspNetCore.Mvc;
-using PixelPort.Server.Models;
+﻿using Microsoft.AspNetCore.Mvc;
 using PixelPort.Server.Models.Dto;
-using PixelPort.Server.Models.DTO;
 using PixelPort.Server.Repository.IRepository;
 using System.Security.Claims;
 

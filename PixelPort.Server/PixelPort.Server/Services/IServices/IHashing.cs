@@ -1,6 +1,4 @@
-﻿using System.Linq.Expressions;
-
-namespace PixelPort.Server.Services.IServices
+﻿namespace PixelPort.Server.Services.IServices
 {
     public interface IHashing
     {

@@ -1,7 +1,5 @@
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
-//using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using PixelPort.Server;
@@ -10,7 +8,6 @@ using PixelPort.Server.Repository;
 using PixelPort.Server.Repository.IRepository;
 using PixelPort.Server.Services;
 using PixelPort.Server.Services.IServices;
-using System.Globalization;
 using System.Text;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -54,7 +51,8 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
             ValidateIssuerSigningKey = true,
             IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(key)),
             ValidateIssuer = false,
-            ValidateAudience = false
+            ValidateAudience = false,
+            ValidateLifetime = true,
         };
 
         // Добавили поддержку cookies для Angular
@@ -62,19 +60,19 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             OnMessageReceived = context =>
             {
-                // Ищем токен в cookie (для Angular)
-                if (context.Request.Cookies.ContainsKey("auth_token"))
-                {
-                    context.Token = context.Request.Cookies["auth_token"];
-                }
-                // Или в header (для Swagger)
-                else if (context.Request.Headers.ContainsKey("Authorization"))
+                // Ищем токен в header (для Swagger) 
+                if (context.Request.Headers.ContainsKey("Authorization"))
                 {
                     var header = context.Request.Headers["Authorization"].ToString();
                     if (header.StartsWith("Bearer "))
                     {
                         context.Token = header.Substring(7);
                     }
+                }
+                // Или в cookie (для Angular)
+                else if (context.Request.Cookies.ContainsKey("auth_token"))
+                {
+                    context.Token = context.Request.Cookies["auth_token"];
                 }
                 return Task.CompletedTask;
             }
@@ -123,9 +121,10 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAngularApp");
 
+//app.UseRouting();
+
 //app.UseHttpsRedirection();
 
-// Починить Авторизацию в свагере
 app.UseAuthentication();
 app.UseAuthorization();
 

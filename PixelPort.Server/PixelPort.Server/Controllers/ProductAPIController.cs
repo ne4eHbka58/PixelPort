@@ -1,16 +1,10 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using PixelPort.Server.Data;
 using PixelPort.Server.Models;
 using PixelPort.Server.Models.Dto;
 using PixelPort.Server.Models.DTO;
-using PixelPort.Server.Repository;
 using PixelPort.Server.Repository.IRepository;
-using System.ComponentModel.DataAnnotations;
-using System.ComponentModel.DataAnnotations.Schema;
 
 namespace PixelPort.Server.Controllers
 {

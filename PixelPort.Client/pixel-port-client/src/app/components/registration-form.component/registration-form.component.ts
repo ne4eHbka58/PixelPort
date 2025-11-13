@@ -100,14 +100,20 @@ export class RegistrationFormComponent {
     this.authService.register(registrationData).subscribe({
       next: () => {
         console.log('Успешная регистрация');
-        this.alerts.open('Вы успешно зарегистрированы').subscribe();
+        this.alerts.open('Вы успешно зарегистрированы', { appearance: 'positive' }).subscribe();
         this.router.navigate(['/auth'], {
           queryParams: { mode: 'login' },
         });
       },
       error: (error) => {
         this.errorMessage = this.handleRegistrationError(error);
-        this.alerts.open(`Произошла ошибка - ${this.errorMessage}`).subscribe();
+        this.alerts
+          .open(`Произошла ошибка - ${this.errorMessage}`, {
+            appearance: 'negative',
+            closeable: false,
+            autoClose: 5000,
+          })
+          .subscribe();
       },
     });
   }

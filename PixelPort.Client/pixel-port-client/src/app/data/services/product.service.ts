@@ -50,6 +50,7 @@ export class ProductService {
 
     return this.http.get<ProductResponseDTO[]>(`${this.baseApiUrl}ProductAPI`, {
       params: httpParams,
+      withCredentials: true,
     });
   }
 
