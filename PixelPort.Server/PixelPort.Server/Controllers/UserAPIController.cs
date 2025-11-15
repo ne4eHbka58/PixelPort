@@ -22,8 +22,9 @@ namespace PixelPort.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<UserDTO>> GetUser()
+        public async Task<ActionResult<UserDTO>> GetUser(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -37,7 +38,7 @@ namespace PixelPort.Server.Controllers
                     return StatusCode(401);
                 }
 
-                var user = await _userRepo.GetUser(userId);
+                var user = await _userRepo.GetUser(userId, ct: cancellationToken);
 
                 if (user == null)
                 {
@@ -49,9 +50,14 @@ namespace PixelPort.Server.Controllers
 
                 return StatusCode(200, user);
             }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Get Current User - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
+            }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: GetCurrentUser - {ex.Message}");
+                _logger.LogInformation($"ERROR: Get Current User - {ex.Message}");
 
                 return StatusCode(500);
             }
@@ -61,12 +67,13 @@ namespace PixelPort.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status401Unauthorized)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO model)
+        public async Task<ActionResult<LoginResponseDTO>> Login([FromBody] LoginRequestDTO model, CancellationToken cancellationToken = default)
         {
             try
             {
-                var loginResponse = await _userRepo.Login(model);
+                var loginResponse = await _userRepo.Login(model, ct: cancellationToken);
 
                 if(loginResponse == null || string.IsNullOrEmpty(loginResponse.Token))
                 {
@@ -89,7 +96,11 @@ namespace PixelPort.Server.Controllers
                 return StatusCode(200, loginResponse);
 
             }
-
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Login - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
+            }
             catch (Exception ex)
             {
                 _logger.LogInformation($"ERROR: Login - {ex.Message}");
@@ -125,8 +136,9 @@ namespace PixelPort.Server.Controllers
 
         [HttpGet("check", Name = "CheckAuth")]
         [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> CheckAuth()
+        public async Task<ActionResult> CheckAuth(CancellationToken cancellationToken = default)
         {
             try
             {
@@ -135,7 +147,7 @@ namespace PixelPort.Server.Controllers
 
                 if (int.TryParse(userIdString, out int userId))
                 {
-                    var user = await _userRepo.GetUser(userId);
+                    var user = await _userRepo.GetUser(userId, ct: cancellationToken);
 
                     _logger.LogInformation($"Checking Auth");
 
@@ -143,6 +155,11 @@ namespace PixelPort.Server.Controllers
                 }
 
                 return StatusCode(200, new { authenticated = false });
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: CheckAuth - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
@@ -155,12 +172,13 @@ namespace PixelPort.Server.Controllers
         [HttpPost("register", Name = "Register")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> Register([FromBody] RegistrationRequestDTO model)
+        public async Task<ActionResult> Register([FromBody] RegistrationRequestDTO model, CancellationToken cancellationToken = default)
         {
             try
             {
-                bool isUserEmailUnique = await _userRepo.IsUniqueUser(model.Email);
+                bool isUserEmailUnique = await _userRepo.IsUniqueUser(model.Email, ct: cancellationToken);
 
                 if (!isUserEmailUnique)
                 {
@@ -168,9 +186,7 @@ namespace PixelPort.Server.Controllers
                     return StatusCode(400, "User with this email already exists");
                 }
 
-
-
-                var user = await _userRepo.Register(model);
+                var user = await _userRepo.Register(model, ct: cancellationToken);
 
                 if (user == null)
                 {
@@ -181,7 +197,11 @@ namespace PixelPort.Server.Controllers
                 _logger.LogInformation($"Registering new user with email - {user.Email}");
                 return StatusCode(201);
             }
-
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Register - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
+            }
             catch (Exception ex)
             {
                 _logger.LogInformation($"ERROR: Register - {ex.Message}");

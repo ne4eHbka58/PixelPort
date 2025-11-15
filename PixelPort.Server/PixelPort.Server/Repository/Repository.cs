@@ -2,6 +2,7 @@
 using PixelPort.Server.Data;
 using PixelPort.Server.Repository.IRepository;
 using System.Linq.Expressions;
+using System.Threading;
 
 namespace PixelPort.Server.Repository
 {
@@ -14,17 +15,17 @@ namespace PixelPort.Server.Repository
             _db = db;
             this.dbSet = _db.Set<T>();
         }
-        public async Task<T> CreateAsync(T entity)
+        public async Task<T> CreateAsync(T entity, CancellationToken ct = default)
         {
             await dbSet.AddAsync(entity);
-            await SaveAsync();
+            await SaveAsync(ct);
 
             // Перезагружаем с базы
-            await _db.Entry(entity).ReloadAsync();
+            await _db.Entry(entity).ReloadAsync(ct);
             return entity;
         }
 
-        public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true)
+        public async Task<T> GetAsync(Expression<Func<T, bool>>? filter = null, bool tracked = true, CancellationToken ct = default)
         {
             IQueryable<T> query = dbSet;
 
@@ -38,11 +39,11 @@ namespace PixelPort.Server.Repository
                 query = query.Where(filter);
             }
 
-            return await query.FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync(ct);
         }
 
 
-        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null)
+        public async Task<List<T>> GetAllAsync(Expression<Func<T, bool>>? filter = null, CancellationToken ct = default)
         {
             IQueryable<T> query = dbSet;
 
@@ -51,18 +52,18 @@ namespace PixelPort.Server.Repository
                 query = query.Where(filter);
             }
 
-            return await query.ToListAsync();
+            return await query.ToListAsync(ct);
         }
 
-        public async Task RemoveAsync(T entity)
+        public async Task RemoveAsync(T entity, CancellationToken ct = default)
         {
             dbSet.Remove(entity);
-            await SaveAsync();
+            await SaveAsync(ct);
         }
 
-        public async Task SaveAsync()
+        public async Task SaveAsync(CancellationToken ct = default)
         {
-            await _db.SaveChangesAsync();
+            await _db.SaveChangesAsync(ct);
         }
     }
 }

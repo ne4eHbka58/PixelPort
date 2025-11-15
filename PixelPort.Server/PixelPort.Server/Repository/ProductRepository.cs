@@ -14,32 +14,6 @@ namespace PixelPort.Server.Repository
             _db = db;
         }
        
-        public async Task<Product> UpdateWithCharacteristicsAsync(Product product, List<ProductCharacteristic>? characteristics)
-        {
-            // Удаляем старые характеристики
-            var existingCharacteristics = _db.ProductCharacteristics.Where(pc => pc.ProductId == product.Id);
-            _db.ProductCharacteristics.RemoveRange(existingCharacteristics);
-
-            // Добавляем новые
-            if (characteristics != null && characteristics.Any())
-            {
-                foreach (var characteristic in characteristics)
-                {
-                    characteristic.ProductId = product.Id;
-                }
-                await _db.ProductCharacteristics.AddRangeAsync(characteristics);
-
-            }
-
-            // Обновляем продукт
-           product.UpdatedDate = DateTime.Now;
-            _db.Products.Update(product);
-            await _db.SaveChangesAsync();
-
-            // Перезагружаем с базы
-            await _db.Entry(product).ReloadAsync();
-            return product;
-        }
         public async Task<List<Product>> GetAllWithDetailsAsync(string search = null,
             int? categoryId = null,
             List<int> manufacturerIds = null,
@@ -47,7 +21,8 @@ namespace PixelPort.Server.Repository
             decimal? maxPrice = null,
             string sortBy = "name",
             bool sortDesc = false, 
-            bool tracked = true)
+            bool tracked = true,
+            CancellationToken ct = default)
         {
             IQueryable<Product> query = _db.Products
                 .Include(p => p.Category)
@@ -94,10 +69,10 @@ namespace PixelPort.Server.Repository
                 _ => sortDesc ? query.OrderByDescending(p => p.ProductName) : query.OrderBy(p => p.ProductName)
             };
 
-            return await query.ToListAsync();
+            return await query.ToListAsync(ct);
         }
 
-        public async Task<Product> GetWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true)
+        public async Task<Product> GetWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true, CancellationToken ct = default)
         {
             IQueryable<Product> query = _db.Products
                 .Include(p => p.Category)
@@ -114,7 +89,35 @@ namespace PixelPort.Server.Repository
                 query = query.Where(filter);
             }
 
-            return await query.FirstOrDefaultAsync();
+            return await query.FirstOrDefaultAsync(ct);
         }
+
+        public async Task<Product> UpdateWithCharacteristicsAsync(Product product, List<ProductCharacteristic>? characteristics, CancellationToken ct = default)
+        {
+            // Удаляем старые характеристики
+            var existingCharacteristics = _db.ProductCharacteristics.Where(pc => pc.ProductId == product.Id);
+            _db.ProductCharacteristics.RemoveRange(existingCharacteristics);
+
+            // Добавляем новые
+            if (characteristics != null && characteristics.Any())
+            {
+                foreach (var characteristic in characteristics)
+                {
+                    characteristic.ProductId = product.Id;
+                }
+                await _db.ProductCharacteristics.AddRangeAsync(characteristics, ct);
+
+            }
+
+            // Обновляем продукт
+            product.UpdatedDate = DateTime.Now;
+            _db.Products.Update(product);
+            await _db.SaveChangesAsync(ct);
+
+            // Перезагружаем с базы
+            await _db.Entry(product).ReloadAsync(ct);
+            return product;
+        }
+
     }
 }

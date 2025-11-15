@@ -26,11 +26,11 @@ namespace PixelPort.Server.Repository
             secretKey = configuration.GetValue<string>("ApiSettings:Secret");
         }
 
-        public async Task<UserDTO> GetUser(int id)
+        public async Task<UserDTO> GetUser(int id, CancellationToken ct)
         {
             var user = await _db.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Id == id);
+                .FirstOrDefaultAsync(u => u.Id == id, ct);
 
             if (user != null)
             {
@@ -40,9 +40,9 @@ namespace PixelPort.Server.Repository
             return new UserDTO();
         }
 
-        public async Task<bool> IsUniqueUser(string email)
+        public async Task<bool> IsUniqueUser(string email, CancellationToken ct = default)
         {
-            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email);
+            var user = await _db.Users.FirstOrDefaultAsync(u => u.Email == email, ct);
             if (user == null)
             {
                 return true;
@@ -50,14 +50,23 @@ namespace PixelPort.Server.Repository
             return false;
         }
 
-        public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO)
+        public async Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO, CancellationToken ct = default)
         {
             var user = await _db.Users
                 .Include(u => u.Role)
-                .FirstOrDefaultAsync(u => u.Email == loginRequestDTO.Email 
-                && u.Password == _hashing.ComputeHashSha128(loginRequestDTO.Password));
+                .FirstOrDefaultAsync(u => u.Email == loginRequestDTO.Email, ct);
 
             if (user == null)
+            {
+                return new LoginResponseDTO()
+                {
+                    Token = "",
+                    User = null
+                };
+            }
+
+            var hashedPassword = _hashing.ComputeHashSha128(loginRequestDTO.Password);
+            if (user.Password != hashedPassword)
             {
                 return new LoginResponseDTO()
                 {
@@ -93,14 +102,14 @@ namespace PixelPort.Server.Repository
             return loginResponseDTO;
         }
 
-        public async Task<User> Register(RegistrationRequestDTO registrationRequestDTO)
+        public async Task<User> Register(RegistrationRequestDTO registrationRequestDTO, CancellationToken ct = default)
         {
             User tempUser = _mapper.Map<User>(registrationRequestDTO);
 
             tempUser.Password = _hashing.ComputeHashSha128(registrationRequestDTO.Password);
 
-            await _db.Users.AddAsync(tempUser);
-            await _db.SaveChangesAsync();
+            await _db.Users.AddAsync(tempUser, ct);
+            await _db.SaveChangesAsync(ct);
 
             return tempUser;
         }

@@ -12,8 +12,9 @@ namespace PixelPort.Server.Repository.IRepository
             decimal? maxPrice = null,
             string sortBy = "name",
             bool sortDesc = false,
-            bool tracked = true);
-        Task<Product> GetWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true);
-        Task<Product> UpdateWithCharacteristicsAsync(Product product, List<ProductCharacteristic>? characteristics);
+            bool tracked = true,
+            CancellationToken ct = default);
+        Task<Product> GetWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true, CancellationToken ct = default);
+        Task<Product> UpdateWithCharacteristicsAsync(Product product, List<ProductCharacteristic>? characteristics, CancellationToken ct = default);
     }
 }

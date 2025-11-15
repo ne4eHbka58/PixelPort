@@ -38,6 +38,8 @@ namespace PixelPort.Server.Controllers
         [HttpGet("", Name = "GetProducts")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
+
         public async Task<ActionResult<List<ProductResponseDTO>>> GetProducts(
             [FromQuery] string search = null,
             [FromQuery] int? categoryId = null,
@@ -45,16 +47,22 @@ namespace PixelPort.Server.Controllers
             [FromQuery] decimal? minPrice = null,
             [FromQuery] decimal? maxPrice = null,
             [FromQuery] string sortBy = "name",
-            [FromQuery] bool sortDesc = false)
+            [FromQuery] bool sortDesc = false,
+            CancellationToken cancellationToken = default)
         {
             try // Получаем все товары
             {
                 IEnumerable<Product> productsList = await _dbProduct.GetAllWithDetailsAsync(
-            search, categoryId, manufacturerIds, minPrice, maxPrice, sortBy, sortDesc);
+            search, categoryId, manufacturerIds, minPrice, maxPrice, sortBy, sortDesc, ct: cancellationToken);
 
                 _logger.LogInformation("Getting all products");
 
                 return StatusCode(200, _mapper.Map<List<ProductResponseDTO>>(productsList));
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Get all Products - клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
@@ -68,10 +76,11 @@ namespace PixelPort.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ProductResponseDTO>> GetProduct(int productId)
+        public async Task<ActionResult<ProductResponseDTO>> GetProduct(int productId, CancellationToken cancellationToken = default)    
         {
-            if (productId == 0) // Product.id = 0
+            if (productId <= 0) // Product.id = 0
             {
                 _logger.LogInformation($"ERROR: Get Product with Id = {productId}");
 
@@ -80,7 +89,7 @@ namespace PixelPort.Server.Controllers
 
             try // Ищем товар
             {
-                Product product = await _dbProduct.GetWithDetailsAsync(p => p.Id == productId, false);
+                Product product = await _dbProduct.GetWithDetailsAsync(p => p.Id == productId, tracked: false, ct: cancellationToken);
 
                 if (product == null) // Не найден
                 {
@@ -93,7 +102,11 @@ namespace PixelPort.Server.Controllers
 
                 return StatusCode(200, _mapper.Map<ProductResponseDTO>(product));
             }
-
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Get Product - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
+            }
             catch (Exception ex)
             {
                 _logger.LogInformation($"ERROR: Get Product - {ex.Message}");
@@ -106,8 +119,11 @@ namespace PixelPort.Server.Controllers
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status201Created)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult<ProductCreateDTO>> CreateProduct([FromBody] ProductCreateDTO tempCreateProduct)
+        public async Task<ActionResult<ProductCreateDTO>> CreateProduct(
+            [FromBody] ProductCreateDTO tempCreateProduct, 
+            CancellationToken cancellationToken = default)
         {
             try
             {
@@ -117,7 +133,7 @@ namespace PixelPort.Server.Controllers
 
                     return StatusCode(400);
                 }
-                else if (await _dbProduct.GetAsync(p => p.ProductName.ToLower() == tempCreateProduct.ProductName.ToLower()) != null) // Попытка создать товар с уже существующим названием
+                else if (await _dbProduct.GetAsync(p => p.ProductName.ToLower() == tempCreateProduct.ProductName.ToLower(), ct: cancellationToken) != null) // Попытка создать товар с уже существующим названием
                 {
                     _logger.LogInformation($"ERROR: Create Product - product with same name");
 
@@ -127,7 +143,7 @@ namespace PixelPort.Server.Controllers
                 {
                     Product model = _mapper.Map<Product>(tempCreateProduct); // Маппим товар
 
-                    var responseModel = await _dbProduct.CreateAsync(model); // Создаём товар
+                    var responseModel = await _dbProduct.CreateAsync(model, ct: cancellationToken); // Создаём товар
                     var responseDto = _mapper.Map<ProductResponseDTO>(responseModel); // Маппим ответ
 
                     _logger.LogInformation($"Creating Product");
@@ -136,7 +152,11 @@ namespace PixelPort.Server.Controllers
                 }
 
             }
-
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Create Product - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
+            }
             catch (Exception ex)
             {
                 _logger.LogInformation($"ERROR: Create Product - {ex.Message}");
@@ -150,19 +170,20 @@ namespace PixelPort.Server.Controllers
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
-        public async Task<ActionResult> DeleteProduct(int productId)
+        public async Task<ActionResult> DeleteProduct(int productId, CancellationToken cancellationToken = default)
         {
-            if (productId == 0) // Product.Id = 0
+            if (productId <= 0) // Product.Id = 0
             {
-                _logger.LogInformation($"ERROR: Delete Product with productId = 0");
+                _logger.LogInformation($"ERROR: Delete Product with productId <= 0");
 
                 return StatusCode(400);
             }
 
             try
             {
-                var result = await _dbProduct.GetWithDetailsAsync(p => p.Id == productId);
+                var result = await _dbProduct.GetWithDetailsAsync(p => p.Id == productId, ct: cancellationToken);
                 if (result == null) // Не найден
                 {
                     _logger.LogInformation($"ERROR: Delete Product with Id = {productId}");
@@ -170,13 +191,17 @@ namespace PixelPort.Server.Controllers
                     return StatusCode(404);
                 }
 
-                await _dbProduct.RemoveAsync(result);
+                await _dbProduct.RemoveAsync(result, ct: cancellationToken);
 
                 _logger.LogInformation($"Deleting Product with Id = {productId}");
 
                 return StatusCode(200);
             }
-
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Delete Product - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
+            }
             catch (Exception ex)
             {
                 _logger.LogInformation($"ERROR: Delete Product - {ex.Message}");
@@ -189,9 +214,13 @@ namespace PixelPort.Server.Controllers
         [Authorize(Roles = "admin")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
         [ProducesResponseType(StatusCodes.Status500InternalServerError)]
 
-        public async Task<ActionResult<ProductResponseDTO>> UpdateProduct(int productId, [FromBody] ProductUpdateDTO updateTempProduct) {
+        public async Task<ActionResult<ProductResponseDTO>> UpdateProduct(
+            int productId, 
+            [FromBody] ProductUpdateDTO updateTempProduct, 
+            CancellationToken cancellationToken = default) {
 
             try
             {
@@ -203,7 +232,8 @@ namespace PixelPort.Server.Controllers
                 }
 
                 var existingProduct = await _dbProduct.GetWithDetailsAsync( // Ищем товар
-                    p => p.Id == productId
+                    p => p.Id == productId,
+                    ct: cancellationToken
                 );
 
                 if (existingProduct == null) // Если пустой, то возвращаем 404
@@ -219,14 +249,18 @@ namespace PixelPort.Server.Controllers
                     .Select(c => _mapper.Map<ProductCharacteristic>(c))
                     .ToList();
 
-                var responseModel = await _dbProduct.UpdateWithCharacteristicsAsync(existingProduct, newCharacteristics); // Обновляем товар
+                var responseModel = await _dbProduct.UpdateWithCharacteristicsAsync(existingProduct, newCharacteristics, ct: cancellationToken); // Обновляем товар
                 var responseDto = _mapper.Map<ProductResponseDTO>(responseModel); // Маппим ответ
 
                 _logger.LogInformation($"Update Product with Id = {productId}");
 
                 return StatusCode(200, responseDto);
             }
-
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Update Product - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
+            }
             catch (Exception ex)
             {
                 _logger.LogInformation($"ERROR: Update Product with Id = {productId} - {ex.Message}");
@@ -238,15 +272,21 @@ namespace PixelPort.Server.Controllers
         [HttpGet("getcategories", Name = "GetCategories")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<Category>>> GetCategories()
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
+        public async Task<ActionResult<List<Category>>> GetCategories(CancellationToken cancellationToken = default)
         {
             try // Получаем все товары
             {
-                IEnumerable<Category> categoriesList = await _dbCategory.GetAllAsync();
+                IEnumerable<Category> categoriesList = await _dbCategory.GetAllAsync(ct: cancellationToken);
 
                 _logger.LogInformation("Getting all categories");
 
                 return StatusCode(200, _mapper.Map<List<CategoryResponseDTO>>(categoriesList));
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Get all categories - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
@@ -259,15 +299,21 @@ namespace PixelPort.Server.Controllers
         [HttpGet("getmanufacturers", Name = "GetManufacturers")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<List<ManufacturerResponseDTO>>> GetManufacturers()
+        [ProducesResponseType(StatusCodes.Status499ClientClosedRequest)]
+        public async Task<ActionResult<List<ManufacturerResponseDTO>>> GetManufacturers(CancellationToken cancellationToken = default)
         {
             try // Получаем все товары
             {
-                IEnumerable<Manufacturer> manufacturersList = await _dbManufacturer.GetAllAsync();
+                IEnumerable<Manufacturer> manufacturersList = await _dbManufacturer.GetAllAsync(ct: cancellationToken);
 
                 _logger.LogInformation("Getting all manufacturers");
 
                 return StatusCode(200, _mapper.Map<List<ManufacturerResponseDTO>>(manufacturersList));
+            }
+            catch (OperationCanceledException)
+            {
+                _logger.LogInformation("ERROR: Get all manufacturers - Клиент отменил запрос");
+                return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {

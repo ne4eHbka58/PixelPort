@@ -12,13 +12,13 @@ namespace PixelPort.Server.Repository
             _db = db;
         }
 
-        public async Task<ProductCharacteristic> UpdateCharacteristicAsync(ProductCharacteristic characteristic)
+        public async Task<ProductCharacteristic> UpdateCharacteristicAsync(ProductCharacteristic characteristic, CancellationToken ct = default)
         {
             _db.ProductCharacteristics.Update(characteristic);
-            await SaveAsync();
+            await SaveAsync(ct);
 
             // Перезагружаем с базы
-            await _db.Entry(characteristic).ReloadAsync();
+            await _db.Entry(characteristic).ReloadAsync(ct);
             return characteristic;
         }
     }

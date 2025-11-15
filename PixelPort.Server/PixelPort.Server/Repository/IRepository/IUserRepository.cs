@@ -5,9 +5,9 @@ namespace PixelPort.Server.Repository.IRepository
 {
     public interface IUserRepository
     {
-        Task<bool> IsUniqueUser(string email);
-        Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO);
-        Task<User> Register(RegistrationRequestDTO registrationRequestDTO);
-        Task<UserDTO> GetUser(int id);
+        Task<bool> IsUniqueUser(string email, CancellationToken ct = default);
+        Task<UserDTO> GetUser(int id, CancellationToken ct = default);
+        Task<LoginResponseDTO> Login(LoginRequestDTO loginRequestDTO, CancellationToken ct = default);
+        Task<User> Register(RegistrationRequestDTO registrationRequestDTO, CancellationToken ct = default);
     }
 }
