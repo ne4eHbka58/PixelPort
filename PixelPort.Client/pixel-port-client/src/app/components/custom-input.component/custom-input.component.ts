@@ -1,4 +1,4 @@
-import { Component, forwardRef, Input } from '@angular/core';
+import { ChangeDetectionStrategy, Component, forwardRef, Input } from '@angular/core';
 import {
   NG_VALUE_ACCESSOR,
   NG_VALIDATORS,
@@ -7,6 +7,8 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms';
+import { TuiTextfield, TuiIcon } from '@taiga-ui/core';
+import { TuiPassword } from '@taiga-ui/kit';
 
 // Константы для регулярных выражений
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -15,9 +17,10 @@ const PHONE_REGEX = /^(\+7|8)[\s\-]?\(?[0-9]{3}\)?[\s\-]?[0-9]{3}[\s\-]?[0-9]{2}
 @Component({
   selector: 'app-custom-input',
   standalone: true,
-  imports: [],
+  imports: [TuiTextfield, TuiIcon, TuiPassword],
   templateUrl: './custom-input.component.html',
   styleUrl: './custom-input.component.less',
+  changeDetection: ChangeDetectionStrategy.OnPush,
   providers: [
     {
       provide: NG_VALUE_ACCESSOR,
