@@ -17,6 +17,10 @@ body {
   background-color: @main-bg-color;
   --tui-font-text: 'Roboto', 'Manrope', -apple-system, 'BlinkMacSystemFont', system-ui, 'Segoe UI',
     'Helvetica Neue', sans-serif;
+
+  tui-hints tui-hint {
+    --tui-background-accent-1: @hint-bg-color; // Фон для всплывающих подсказок
+  }
 }
 
 button {
