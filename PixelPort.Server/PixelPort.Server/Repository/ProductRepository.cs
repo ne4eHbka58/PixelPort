@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using PixelPort.Server.Data;
+using PixelPort.Server.Helpers;
 using PixelPort.Server.Models;
 using PixelPort.Server.Repository.IRepository;
 using System.Linq.Expressions;
@@ -14,62 +15,98 @@ namespace PixelPort.Server.Repository
             _db = db;
         }
        
-        public async Task<List<Product>> GetAllWithDetailsAsync(string search = null,
+        public async Task<PagedResult<Product>> GetAllWithDetailsAsync(string search = null,
             int? categoryId = null,
             List<int> manufacturerIds = null,
             decimal? minPrice = null,
             decimal? maxPrice = null,
             string sortBy = "name",
-            bool sortDesc = false, 
+            bool sortDesc = false,
+            int page = 0,
+            int pageSize = 24,
             bool tracked = true,
             CancellationToken ct = default)
         {
-            IQueryable<Product> query = _db.Products
+            // Запрос для данных
+            IQueryable<Product> dataQuery = _db.Products
                 .Include(p => p.Category)
                 .Include(p => p.Manufacturer)
                 .Include(p => p.Characteristics);
 
             if (!tracked)
             {
-                query = query.AsNoTracking();
+                dataQuery = dataQuery.AsNoTracking();
             }
 
+            // Поиск
             if (!string.IsNullOrEmpty(search))
             {
-                query = query.Where(p => p.ProductName.Contains(search));
+                dataQuery = dataQuery.Where(p => p.ProductName.Contains(search));
             }
 
+            #region Фильтры
             if (categoryId != null)
             {
-                query = query.Where(p => p.CategoryID == categoryId);
+                dataQuery = dataQuery.Where(p => p.CategoryID == categoryId);
             }
 
             if (manufacturerIds != null && manufacturerIds.Any())
             {
-                query = query.Where(p => manufacturerIds.Contains(p.ManufacturerID));
+                dataQuery = dataQuery.Where(p => manufacturerIds.Contains(p.ManufacturerID));
             }
 
             if (minPrice.HasValue)
             {
-                query = query.Where(p => p.Price >= minPrice.Value);
+                dataQuery = dataQuery.Where(p => p.Price >= minPrice.Value);
             }
 
             if (maxPrice.HasValue)
             {
-                query = query.Where(p => p.Price <= maxPrice.Value);
+                dataQuery = dataQuery.Where(p => p.Price <= maxPrice.Value);
+            }
+            #endregion
+
+            // Получаем общее количество ДО пагинации
+            int totalCount = await dataQuery.CountAsync(ct);
+            int totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            // Проверка на валидность страницы
+            if (page > totalPages && totalPages > 0)
+            {
+                return new PagedResult<Product>
+                {
+                    Items = new List<Product>(),
+                    CurrentPage = page,
+                    PageSize = pageSize,
+                    TotalCount = totalCount
+                };
             }
 
-            query = sortBy.ToLower() switch
+            // Сортировка
+            dataQuery = sortBy.ToLower() switch
             {
-                "id" => sortDesc ? query.OrderByDescending(p => p.Id) : query.OrderBy(p => p.Id),
-                "price" => sortDesc ? query.OrderByDescending(p => p.Price) : query.OrderBy(p => p.Price),
-                "createdDate" => sortDesc ? query.OrderByDescending(p => p.CreatedDate) : query.OrderBy(p => p.CreatedDate),
-                "rate" => sortDesc ? query.OrderByDescending(p => p.Rate) : query.OrderBy(p => p.Rate),
-                "name" => sortDesc ? query.OrderByDescending(p => p.ProductName) : query.OrderBy(p => p.ProductName),
-                _ => sortDesc ? query.OrderByDescending(p => p.ProductName) : query.OrderBy(p => p.ProductName)
+                "id" => sortDesc ? dataQuery.OrderByDescending(p => p.Id) : dataQuery.OrderBy(p => p.Id),
+                "price" => sortDesc ? dataQuery.OrderByDescending(p => p.Price) : dataQuery.OrderBy(p => p.Price),
+                "createdDate" => sortDesc ? dataQuery.OrderByDescending(p => p.CreatedDate) : dataQuery.OrderBy(p => p.CreatedDate),
+                "rate" => sortDesc ? dataQuery.OrderByDescending(p => p.Rate) : dataQuery.OrderBy(p => p.Rate),
+                "name" => sortDesc ? dataQuery.OrderByDescending(p => p.ProductName) : dataQuery.OrderBy(p => p.ProductName),
+                _ => sortDesc ? dataQuery.OrderByDescending(p => p.ProductName) : dataQuery.OrderBy(p => p.ProductName)
             };
 
-            return await query.ToListAsync(ct);
+
+            // Пагинация
+            var items = await dataQuery
+                .Skip(page * pageSize)
+                .Take(pageSize)
+                .ToListAsync(ct);
+
+            return new PagedResult<Product>
+            {
+                Items = items,
+                CurrentPage = page,
+                PageSize = pageSize,
+                TotalCount = totalCount
+            };
         }
 
         public async Task<Product> GetWithDetailsAsync(Expression<Func<Product, bool>>? filter = null, bool tracked = true, CancellationToken ct = default)

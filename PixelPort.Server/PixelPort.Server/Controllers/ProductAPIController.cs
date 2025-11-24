@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using PixelPort.Server.Helpers;
 using PixelPort.Server.Models;
 using PixelPort.Server.Models.Dto;
 using PixelPort.Server.Models.DTO;
@@ -48,16 +49,36 @@ namespace PixelPort.Server.Controllers
             [FromQuery] decimal? maxPrice = null,
             [FromQuery] string sortBy = "name",
             [FromQuery] bool sortDesc = false,
+            [FromQuery] int page = 0,
+            [FromQuery] int pageSize = 24,
             CancellationToken cancellationToken = default)
         {
+            page = Math.Max(0, page);
+            pageSize = Math.Clamp(pageSize, 1, 99); // Ограничиваем максимальный размер страницы
+
             try // Получаем все товары
             {
-                IEnumerable<Product> productsList = await _dbProduct.GetAllWithDetailsAsync(
-            search, categoryId, manufacturerIds, minPrice, maxPrice, sortBy, sortDesc, ct: cancellationToken);
+                var pagedResult = await _dbProduct.GetAllWithDetailsAsync(
+            search, categoryId, manufacturerIds, minPrice, maxPrice, sortBy, sortDesc, page, pageSize, ct: cancellationToken);
 
-                _logger.LogInformation("Getting all products");
+                PagedResult<ProductResponseDTO> response = new PagedResult<ProductResponseDTO>()
+                {
+                    Items = _mapper.Map<List<ProductResponseDTO>>(pagedResult.Items),
+                    CurrentPage = pagedResult.CurrentPage,
+                    PageSize = pagedResult.PageSize,
+                    TotalCount = pagedResult.TotalCount
+                };
 
-                return StatusCode(200, _mapper.Map<List<ProductResponseDTO>>(productsList));
+                if (!pagedResult.IsValidPage)
+                {
+                    _logger.LogInformation($"Запрошена несуществующая страница {page}. Всего страниц: {pagedResult.TotalPages}");
+                }
+                else
+                {
+                    _logger.LogInformation($"Получено {pagedResult.Items.Count} продуктов из {pagedResult.TotalCount} всего. Страница {page} из {pagedResult.TotalPages}");
+                }
+
+                return StatusCode(200, response);
             }
             catch (OperationCanceledException)
             {

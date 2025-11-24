@@ -16,6 +16,8 @@
         (click)="goToProduct(product.id)"
       ></app-product-card>
     </div>
+    } @if (length > 1) {
+    <tui-pagination [index]="index" [length]="length" (indexChange)="goToPage($event)" />
     }
   </div>
   } @else {

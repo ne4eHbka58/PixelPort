@@ -9,11 +9,14 @@ import { combineLatest, debounceTime, Subject, takeUntil } from 'rxjs';
 import { ProductFilterParams } from '../../data/interfaces/product-params.interface';
 import { FilterSortComponent } from '../filter-sort-component/filter-sort-component';
 import { FilterSortService } from '../../data/services/filter-sort.service';
+import { PaginationService } from '../../data/services/pagination.service';
+import { PaginationState } from '../../data/interfaces/pagintaion-state';
+import { TuiPagination } from '@taiga-ui/kit';
 
 @Component({
   selector: 'app-product-card-list',
   standalone: true,
-  imports: [ProductCardComponent, FilterSortComponent],
+  imports: [ProductCardComponent, FilterSortComponent, TuiPagination, TuiPagination],
   templateUrl: './product-card-list.component.html',
   styleUrl: './product-card-list.component.less',
 })
@@ -23,6 +26,7 @@ export class ProductCardListComponent {
   private loadingService = inject(LoadingService);
   private searchService = inject(SearchService);
   private filterSortService = inject(FilterSortService);
+  private paginationService = inject(PaginationService);
   private router = inject(Router);
 
   private destroy$ = new Subject<void>();
@@ -30,10 +34,16 @@ export class ProductCardListComponent {
 
   isProductsLoading = this.loadingService.isProductsLoading;
   products: ProductResponseDTO[] = [];
+
+  // Переменные для tui-pagination
+  index = 0;
+  length = 1;
+
   protected maxAvailablePrice = 0;
 
   ngOnInit() {
     this.subscribeToAllFilters();
+    this.subscribeToPagination();
     this.loadProducts();
   }
 
@@ -49,6 +59,7 @@ export class ProductCardListComponent {
         debounceTime(300) // дебаунс для всех фильтров
       )
       .subscribe(([search, sorting, filters]) => {
+        this.index = 0;
         // Собираем все параметры в один объект
         this.currentFilters = {
           search: search || undefined, // преобразуем пустую строку в undefined
@@ -58,18 +69,37 @@ export class ProductCardListComponent {
           categoryId: filters.categoryId ? filters.categoryId : undefined,
           minPrice: filters.minPrice || undefined,
           maxPrice: filters.maxPrice || undefined,
+          page: 0,
         };
 
         this.loadProducts(this.currentFilters);
       });
   }
 
+  private subscribeToPagination() {
+    this.paginationService.paginationState$
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((paginationState) => {
+        // Обновляем переменные для tui-pagination
+        this.index = paginationState.currentPage;
+        this.length = paginationState.totalPages;
+      });
+  }
+
   loadProducts(params?: ProductFilterParams) {
     this.loadingService.setProductsLoading(true);
+
+    console.log(params);
+
     this.productService.getAllProducts(params).subscribe({
-      next: (products) => {
-        this.products = products;
-        this.calculatePriceRange(products);
+      next: (pagedResult) => {
+        // Устанавливаем товары
+        this.products = pagedResult.items;
+
+        // Обновляем состояние пагинации
+        this.paginationService.updatePagination(pagedResult);
+
+        this.calculatePriceRange(pagedResult.items);
         this.loadingService.setProductsLoading(false);
       },
       error: (error) => {
@@ -77,6 +107,26 @@ export class ProductCardListComponent {
         this.loadingService.setProductsLoading(false);
       },
     });
+  }
+
+  // Обработчик изменения страницы от tui-pagination
+  goToPage(page: number): void {
+    const targetPage = page;
+
+    // Обновляем текущие фильтры с новой страницей
+    const updatedFilters = {
+      ...this.currentFilters,
+      page: targetPage,
+    };
+
+    this.loadProducts(updatedFilters);
+
+    // Прокрутка к верху страницы при смене страницы
+    this.scrollToTop();
+  }
+
+  private scrollToTop(): void {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
   // Переход на страницу товара

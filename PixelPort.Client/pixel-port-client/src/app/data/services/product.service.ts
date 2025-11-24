@@ -4,6 +4,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { ProductResponseDTO } from '../interfaces/product-responseDTO.interface';
 import { Observable } from 'rxjs';
 import { ProductFilterParams } from '../interfaces/product-params.interface';
+import { PagedResult } from '../interfaces/paged-result';
 
 @Injectable({
   providedIn: 'root',
@@ -13,7 +14,7 @@ export class ProductService {
 
   constructor(private http: HttpClient) {}
 
-  getAllProducts(params?: ProductFilterParams): Observable<ProductResponseDTO[]> {
+  getAllProducts(params?: ProductFilterParams): Observable<PagedResult<ProductResponseDTO>> {
     let httpParams = new HttpParams();
 
     // Добавляем только переданные параметры
@@ -43,12 +44,16 @@ export class ProductService {
     }
     if (params?.page) {
       httpParams = httpParams.set('page', params.page.toString());
+    } else {
+      httpParams = httpParams.set('page', 0);
     }
     if (params?.pageSize) {
       httpParams = httpParams.set('pageSize', params.pageSize.toString());
+    } else {
+      httpParams = httpParams.set('pageSize', 24);
     }
 
-    return this.http.get<ProductResponseDTO[]>(`${this.baseApiUrl}ProductAPI`, {
+    return this.http.get<PagedResult<ProductResponseDTO>>(`${this.baseApiUrl}ProductAPI`, {
       params: httpParams,
       withCredentials: true,
     });
