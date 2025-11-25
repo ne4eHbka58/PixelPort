@@ -6,7 +6,7 @@ import {
   Input,
 } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { TuiIcon, TuiDataList } from '@taiga-ui/core';
+import { TuiIcon, TuiDataList, TuiScrollbar } from '@taiga-ui/core';
 import { TuiSelectModule } from '@taiga-ui/legacy';
 import { FilterSortService } from '../../data/services/filter-sort.service';
 import { ManufacturerResponseDTO } from '../../data/interfaces/manufacturer-responseDTO.interface';
@@ -16,7 +16,7 @@ import { combineLatest, take } from 'rxjs';
 
 @Component({
   selector: 'app-filter-sort',
-  imports: [TuiIcon, FormsModule, TuiDataList, TuiSelectModule, TuiInputNumber],
+  imports: [TuiIcon, FormsModule, TuiDataList, TuiSelectModule, TuiInputNumber, TuiScrollbar],
   templateUrl: './filter-sort-component.html',
   styleUrl: './filter-sort-component.less',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -177,7 +177,6 @@ export class FilterSortComponent {
 
     // Обновляем состояние "Выбрать все"
     this.selectAllManufacturers = this.selectedManufacturers.size === this.manufacturers.length;
-    this.applyManufacturerFilter();
   }
 
   protected onSelectAllManufacturersToggle(checked: boolean) {
@@ -190,7 +189,6 @@ export class FilterSortComponent {
       // Снимаем все выборы
       this.selectedManufacturers.clear();
     }
-    this.applyManufacturerFilter();
   }
 
   protected applyManufacturerFilter() {

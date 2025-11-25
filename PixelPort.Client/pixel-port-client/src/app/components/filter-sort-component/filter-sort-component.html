@@ -66,55 +66,72 @@
   </ng-template>
 
   <ng-template #setManufacturersContent class="filter-sort__dropdown">
-    <tui-data-list class="filter-sort__manufacturers-list">
-      <!-- Чекбокс "Все производители" -->
-      <label tuiOption new class="filter-sort__select-all-option">
-        <input
-          tuiCheckbox
-          type="checkbox"
-          [ngModel]="selectAllManufacturers"
-          (ngModelChange)="onSelectAllManufacturersToggle($event)"
-        />
-        Все производители
-      </label>
+    <div class="filter-sort__dropdown-container filter-sort__manufacturer-drowdown">
+      <tui-scrollbar class="filter-sort__scrollable-section">
+        <tui-data-list class="filter-sort__manufacturers-list" tuiScrollable>
+          <!-- Чекбокс "Все производители" -->
+          <label tuiOption new class="filter-sort__select-all-option">
+            <input
+              tuiCheckbox
+              type="checkbox"
+              [ngModel]="selectAllManufacturers"
+              (ngModelChange)="onSelectAllManufacturersToggle($event)"
+            />
+            Все производители
+          </label>
 
-      <!-- Список производителей -->
-      @for (manufacturer of manufacturers; track manufacturer.id) {
-      <label tuiOption new>
-        <input
-          tuiCheckbox
-          type="checkbox"
-          [ngModel]="selectedManufacturers.has(manufacturer.id)"
-          (ngModelChange)="onManufacturerToggle(manufacturer.id, $event)"
-        />
-        {{ manufacturer.manufacturerName }}
-      </label>
-      }
-    </tui-data-list>
-    <!-- Сделать применение фильтров производителей по кнопке готово -->
+          <!-- Список производителей -->
+          @for (manufacturer of manufacturers; track manufacturer.id) {
+          <label tuiOption new>
+            <input
+              tuiCheckbox
+              type="checkbox"
+              [ngModel]="selectedManufacturers.has(manufacturer.id)"
+              (ngModelChange)="onManufacturerToggle(manufacturer.id, $event)"
+            />
+            {{ manufacturer.manufacturerName }}
+          </label>
+          }
+        </tui-data-list>
+      </tui-scrollbar>
+      <!-- Сделать применение фильтров производителей по кнопке готово -->
+      <div class="filter-sort__manufacturer-actions">
+        <button
+          tuiButton
+          type="button"
+          size="m"
+          (click)="applyManufacturerFilter()"
+          class="filter-sort__manufacturer-button filter-sort__apply-button"
+        >
+          Готово
+        </button>
+      </div>
+    </div>
   </ng-template>
 
   <ng-template #setCategoryContent class="filter-sort__dropdown">
-    <tui-data-list>
-      <button
-        tuiOption
-        new
-        (click)="selectCategory(allCategoriesOption)"
-        [class.selected]="selectedCategory.id === 'all'"
-      >
-        {{ allCategoriesOption.categoryName }}
-      </button>
-      @for (category of categories; track category.id) {
-      <button
-        tuiOption
-        new
-        (click)="selectCategory(category)"
-        [class.selected]="selectedCategory.id === category.id"
-      >
-        {{ category.categoryName }}
-      </button>
-      }
-    </tui-data-list>
+    <div class="filter-sort__dropdown-container">
+      <tui-data-list>
+        <button
+          tuiOption
+          new
+          (click)="selectCategory(allCategoriesOption)"
+          [class.selected]="selectedCategory.id === 'all'"
+        >
+          {{ allCategoriesOption.categoryName }}
+        </button>
+        @for (category of categories; track category.id) {
+        <button
+          tuiOption
+          new
+          (click)="selectCategory(category)"
+          [class.selected]="selectedCategory.id === category.id"
+        >
+          {{ category.categoryName }}
+        </button>
+        }
+      </tui-data-list>
+    </div>
   </ng-template>
 
   <ng-template #setPriceContent class="filter-sort__dropdown">
