@@ -14,6 +14,8 @@ namespace BetterLogs
         string _baseFileName;
         long _maxFileSizeBytes;
         int _currentFileIndex;
+
+        private static readonly object _consoleLock = new object();
         public BetterLog(string LogDirectory, string BaseFileName, long MaxFileSizeMB) 
         {
             _logDirectory = LogDirectory;
@@ -64,28 +66,32 @@ namespace BetterLogs
         {
             if (logToConsole)
             {
-                Console.Write($"{DateTime.Now}: ");
-                switch(type)
+                lock (_consoleLock)
                 {
-                    case "error":
-                        Console.ForegroundColor = ConsoleColor.Red;
-                        Console.Write("ОШИБКА");
-                        break;
-                    case "warning":
-                        Console.ForegroundColor = ConsoleColor.Yellow;
-                        Console.Write("ПРЕДУПРЕЖДЕНИЕ");
-                        break;
-                    case "info":
-                        Console.ForegroundColor = ConsoleColor.Green;
-                        Console.Write("ИНФО");
-                        break;
+                    Console.Write($"{DateTime.Now}: ");
+                    switch (type)
+                    {
+                        case "error":
+                            Console.ForegroundColor = ConsoleColor.Red;
+                            Console.Write("ОШИБКА");
+                            break;
+                        case "warning":
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.Write("ПРЕДУПРЕЖДЕНИЕ");
+                            break;
+                        case "info":
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write("ИНФО");
+                            break;
+                    }
+                    Console.ForegroundColor = ConsoleColor.White;
+                    Console.Write($" - {message}\n");
                 }
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.Write($" - {message}\n");
             }
             if (logToFile)
             {
-                string filePath = GetCurrentPath();
+                string filePath;
+                filePath = GetCurrentPath();
 
                 // Проверяем размер текущего файла
                 if (File.Exists(filePath))
