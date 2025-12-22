@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace BetterLogs
@@ -100,11 +101,50 @@ namespace BetterLogs
                     if (fileInfo.Length > _maxFileSizeBytes)
                     {
                         _currentFileIndex++;
-                        filePath = GetCurrentPath();
                     }
                 }
 
-                File.AppendAllText(filePath, $"{DateTime.Now}: {type.ToUpper()} - {message}\n");
+                WriteToFile(message, type);
+            }
+        }
+        private void WriteToFile(string message, string type)
+        {
+            var filePath = GetCurrentPath();
+
+            var logEntry = $"{DateTime.Now}: {type.ToUpper()} - {message}\n";
+
+            // Пытаемся записать несколько раз
+            for (int attempt = 0; attempt < 3; attempt++)
+            {
+                try
+                {
+                    File.AppendAllText(filePath, logEntry);
+                    return; // Успешно записали
+                }
+                catch (IOException) when (attempt < 2) // Не последняя попытка
+                {
+                    // Ждем перед повторной попыткой
+                    Thread.Sleep(10 * (attempt + 1));
+                }
+                catch (Exception ex)
+                {
+                    // Другие ошибки
+                    lock (_consoleLock)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine($"{DateTime.Now}: FILE WRITE ERROR - {ex.Message}");
+                        Console.ForegroundColor = ConsoleColor.White;
+                    }
+                    return;
+                }
+            }
+
+            // Не удалось записать после всех попыток
+            lock (_consoleLock)
+            {
+                Console.ForegroundColor = ConsoleColor.Yellow;
+                Console.WriteLine($"{DateTime.Now}: WARNING - Failed to write log after 3 attempts");
+                Console.ForegroundColor = ConsoleColor.White;
             }
         }
     }

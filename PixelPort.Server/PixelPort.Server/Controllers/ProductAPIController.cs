@@ -76,7 +76,7 @@ namespace PixelPort.Server.Controllers
                 }
                 else
                 {
-                    _betterLog.WriteLog($"Получено {pagedResult.Items.Count} продуктов из {pagedResult.TotalCount} всего. Страница {page} из {pagedResult.TotalPages}", "info");
+                    _betterLog.WriteLog($"Получено {pagedResult.Items.Count} продуктов из {pagedResult.TotalCount} всего. Страница {page + 1} из {pagedResult.TotalPages}", "info");
                 }
 
                 return StatusCode(200, response);
