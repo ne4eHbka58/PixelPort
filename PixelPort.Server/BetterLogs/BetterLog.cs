@@ -98,7 +98,7 @@ namespace BetterLogs
                     }
                 }
 
-                File.AppendAllText(filePath, $"{DateTime.Now}: {type.ToUpper()} - {message}");
+                File.AppendAllText(filePath, $"{DateTime.Now}: {type.ToUpper()} - {message}\n");
             }
         }
     }
