@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BetterLogs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PixelPort.Server.Helpers;
@@ -17,7 +18,7 @@ namespace PixelPort.Server.Controllers
         private readonly ICategoryRepository _dbCategory;
         private readonly IManufacturerRepository _dbManufacturer;
 
-        private readonly ILogger<ProductAPIController> _logger;
+        private readonly BetterLog _betterLog;
 
         private readonly IMapper _mapper;
 
@@ -25,13 +26,13 @@ namespace PixelPort.Server.Controllers
             IProductRepository dbProduct,
             ICategoryRepository dbCategory,
             IManufacturerRepository dbManufacturer,
-            ILogger<ProductAPIController> logger,
+            BetterLog betterLog,
             IMapper mapper)
         {
             _dbProduct = dbProduct;
             _dbCategory = dbCategory;
             _dbManufacturer = dbManufacturer;
-            _logger = logger;
+            _betterLog = betterLog;
             _mapper = mapper;
         }
 
@@ -71,23 +72,24 @@ namespace PixelPort.Server.Controllers
 
                 if (!pagedResult.IsValidPage)
                 {
-                    _logger.LogInformation($"Запрошена несуществующая страница {page}. Всего страниц: {pagedResult.TotalPages}");
+                    _betterLog.WriteLog($"Запрошена несуществующая страница {page}. Всего страниц: {pagedResult.TotalPages}", "error");
                 }
                 else
                 {
-                    _logger.LogInformation($"Получено {pagedResult.Items.Count} продуктов из {pagedResult.TotalCount} всего. Страница {page} из {pagedResult.TotalPages}");
+                    _betterLog.WriteLog($"Получено {pagedResult.Items.Count} продуктов из {pagedResult.TotalCount} всего. Страница {page} из {pagedResult.TotalPages}", "info");
                 }
 
                 return StatusCode(200, response);
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Get all Products - клиент отменил запрос");
+                _betterLog.WriteLog($"Get all Products - клиент отменил запрос", "error");
+
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Get all Products - {ex.Message}");
+                _betterLog.WriteLog($"Get all Products - {ex.Message}", "error");
 
                 return StatusCode(404);
             }
@@ -103,7 +105,7 @@ namespace PixelPort.Server.Controllers
         {
             if (productId <= 0) // Product.id = 0
             {
-                _logger.LogInformation($"ERROR: Get Product with Id = {productId}");
+                _betterLog.WriteLog($"Get Product with Id = {productId}", "error");
 
                 return StatusCode(400);
             }
@@ -114,23 +116,24 @@ namespace PixelPort.Server.Controllers
 
                 if (product == null) // Не найден
                 {
-                    _logger.LogInformation($"ERROR: Get Product with Id = {productId} - NotFound");
+                    _betterLog.WriteLog($"Get Product with Id = {productId} - NotFound", "error");
 
                     return StatusCode(404);
                 }
 
-                _logger.LogInformation($"Getting Product with Id = {productId}");
+                _betterLog.WriteLog($"Getting Product with Id = {productId}", "info");
 
                 return StatusCode(200, _mapper.Map<ProductResponseDTO>(product));
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Get Product - Клиент отменил запрос");
+                _betterLog.WriteLog($"Get Product - Клиент отменил запрос", "error");
+
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Get Product - {ex.Message}");
+                _betterLog.WriteLog($"Get Product - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -150,13 +153,13 @@ namespace PixelPort.Server.Controllers
             {
                 if (tempCreateProduct == null) // Попытка создать пустой товар
                 {
-                    _logger.LogInformation($"ERROR: Create Product - Empty Product");
+                    _betterLog.WriteLog($"Create Product - Empty Product", "error");
 
                     return StatusCode(400);
                 }
                 else if (await _dbProduct.GetAsync(p => p.ProductName.ToLower() == tempCreateProduct.ProductName.ToLower(), ct: cancellationToken) != null) // Попытка создать товар с уже существующим названием
                 {
-                    _logger.LogInformation($"ERROR: Create Product - product with same name");
+                    _betterLog.WriteLog($"Create Product - product with same name", "error");
 
                     return StatusCode(400, "Product with that name already exeists!");
                 }
@@ -167,7 +170,7 @@ namespace PixelPort.Server.Controllers
                     var responseModel = await _dbProduct.CreateAsync(model, ct: cancellationToken); // Создаём товар
                     var responseDto = _mapper.Map<ProductResponseDTO>(responseModel); // Маппим ответ
 
-                    _logger.LogInformation($"Creating Product");
+                    _betterLog.WriteLog($"Creating Product", "info");
 
                     return StatusCode(201, responseDto);
                 }
@@ -175,12 +178,12 @@ namespace PixelPort.Server.Controllers
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Create Product - Клиент отменил запрос");
+                _betterLog.WriteLog($"Create Product - Клиент отменил запрос", "error");
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Create Product - {ex.Message}");
+                _betterLog.WriteLog($"Create Product - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -197,7 +200,7 @@ namespace PixelPort.Server.Controllers
         {
             if (productId <= 0) // Product.Id = 0
             {
-                _logger.LogInformation($"ERROR: Delete Product with productId <= 0");
+                _betterLog.WriteLog($"Delete Product with productId <= 0", "error");
 
                 return StatusCode(400);
             }
@@ -207,25 +210,26 @@ namespace PixelPort.Server.Controllers
                 var result = await _dbProduct.GetWithDetailsAsync(p => p.Id == productId, ct: cancellationToken);
                 if (result == null) // Не найден
                 {
-                    _logger.LogInformation($"ERROR: Delete Product with Id = {productId}");
+                    _betterLog.WriteLog($"Delete Product with Id = {productId}", "error");
 
                     return StatusCode(404);
                 }
 
                 await _dbProduct.RemoveAsync(result, ct: cancellationToken);
 
-                _logger.LogInformation($"Deleting Product with Id = {productId}");
+                _betterLog.WriteLog($"Deleting Product with Id = {productId}", "info");
 
                 return StatusCode(200);
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Delete Product - Клиент отменил запрос");
+                _betterLog.WriteLog($"Delete Product - Клиент отменил запрос", "error");
+
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Delete Product - {ex.Message}");
+                _betterLog.WriteLog($"Delete Product - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -247,7 +251,7 @@ namespace PixelPort.Server.Controllers
             {
                 if (updateTempProduct == null || productId != updateTempProduct.Id) // Пустой товар или айди не равен переданному в теле запроса
                 {
-                    _logger.LogInformation($"ERROR: Update Product with Id = {productId} - Empty product or productId != product.Id");
+                    _betterLog.WriteLog($"Update Product with Id = {productId} - Empty product or productId != product.Id", "error");
 
                     return StatusCode(400);
                 }
@@ -273,18 +277,18 @@ namespace PixelPort.Server.Controllers
                 var responseModel = await _dbProduct.UpdateWithCharacteristicsAsync(existingProduct, newCharacteristics, ct: cancellationToken); // Обновляем товар
                 var responseDto = _mapper.Map<ProductResponseDTO>(responseModel); // Маппим ответ
 
-                _logger.LogInformation($"Update Product with Id = {productId}");
+                _betterLog.WriteLog($"Update Product with Id = {productId}", "info");
 
                 return StatusCode(200, responseDto);
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Update Product - Клиент отменил запрос");
+                _betterLog.WriteLog($"Update Product - Клиент отменил запрос", "error");
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Update Product with Id = {productId} - {ex.Message}");
+                _betterLog.WriteLog($"Update Product with Id = {productId} - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -300,18 +304,19 @@ namespace PixelPort.Server.Controllers
             {
                 IEnumerable<Category> categoriesList = await _dbCategory.GetAllAsync(ct: cancellationToken);
 
-                _logger.LogInformation("Getting all categories");
+                _betterLog.WriteLog($"Getting all categories", "info");
 
                 return StatusCode(200, _mapper.Map<List<CategoryResponseDTO>>(categoriesList));
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Get all categories - Клиент отменил запрос");
+                _betterLog.WriteLog($"Get all categories - Клиент отменил запрос", "error");
+
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Get all categories - {ex.Message}");
+                _betterLog.WriteLog($"Get all categories - {ex.Message}", "error");
 
                 return StatusCode(404);
             }
@@ -327,18 +332,18 @@ namespace PixelPort.Server.Controllers
             {
                 IEnumerable<Manufacturer> manufacturersList = await _dbManufacturer.GetAllAsync(ct: cancellationToken);
 
-                _logger.LogInformation("Getting all manufacturers");
+                _betterLog.WriteLog($"Getting all manufacturers", "info");
 
                 return StatusCode(200, _mapper.Map<List<ManufacturerResponseDTO>>(manufacturersList));
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Get all manufacturers - Клиент отменил запрос");
+                _betterLog.WriteLog($"Get all manufacturers - Клиент отменил запрос", "error");
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Get all manufacturers - {ex.Message}");
+                _betterLog.WriteLog($"Get all manufacturers - {ex.Message}", "error");
 
                 return StatusCode(404);
             }

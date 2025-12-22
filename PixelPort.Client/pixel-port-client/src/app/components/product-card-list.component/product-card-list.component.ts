@@ -1,4 +1,4 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnDestroy } from '@angular/core';
 import { ProductCardComponent } from '../product-card.component/product-card.component';
 import { ProductResponseDTO } from '../../data/interfaces/product-responseDTO.interface';
 import { LoadingService } from '../../data/services/loading.service';
@@ -56,7 +56,7 @@ export class ProductCardListComponent {
     ])
       .pipe(
         takeUntil(this.destroy$),
-        debounceTime(300) // дебаунс для всех фильтров
+        debounceTime(300) // дебаунс для всех фильтров (Небольшое ожидание перед применением фильтров)
       )
       .subscribe(([search, sorting, filters]) => {
         this.index = 0;
@@ -91,22 +91,25 @@ export class ProductCardListComponent {
 
     console.log(params);
 
-    this.productService.getAllProducts(params).subscribe({
-      next: (pagedResult) => {
-        // Устанавливаем товары
-        this.products = pagedResult.items;
+    this.productService
+      .getAllProducts(params)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (pagedResult) => {
+          // Устанавливаем товары
+          this.products = pagedResult.items;
 
-        // Обновляем состояние пагинации
-        this.paginationService.updatePagination(pagedResult);
+          // Обновляем состояние пагинации
+          this.paginationService.updatePagination(pagedResult);
 
-        this.calculatePriceRange(pagedResult.items);
-        this.loadingService.setProductsLoading(false);
-      },
-      error: (error) => {
-        console.error('Error loading products:', error);
-        this.loadingService.setProductsLoading(false);
-      },
-    });
+          this.calculatePriceRange(pagedResult.items);
+          this.loadingService.setProductsLoading(false);
+        },
+        error: (error) => {
+          console.error('Error loading products:', error);
+          this.loadingService.setProductsLoading(false);
+        },
+      });
   }
 
   // Обработчик изменения страницы от tui-pagination
@@ -142,5 +145,10 @@ export class ProductCardListComponent {
 
     const prices = products.map((product) => product.price);
     this.maxAvailablePrice = Math.max(...prices);
+  }
+
+  private ngOnDestroy() {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

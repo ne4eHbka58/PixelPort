@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using BetterLogs;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using PixelPort.Server.Models;
@@ -12,19 +13,16 @@ namespace PixelPort.Server.Controllers
     public class ProductCharacteristicAPIController : ControllerBase
     {
         private readonly IProductCharacteristicRepository _dbProductCharacteristic;
-        private readonly IProductRepository _dbProduct;
-        private readonly ILogger<ProductCharacteristicAPIController> _logger;
+        private readonly BetterLog _betterLog;
         private readonly IMapper _mapper;
 
         public ProductCharacteristicAPIController(
             IProductCharacteristicRepository dbProductCharacteristic,
-            IProductRepository dbProduct,
-            ILogger<ProductCharacteristicAPIController> logger,
+            BetterLog betterLog,
             IMapper mapper)
         {
             _dbProductCharacteristic = dbProductCharacteristic;
-            _dbProduct = dbProduct;
-            _logger = logger;
+            _betterLog = betterLog;
             _mapper = mapper;
         }
 
@@ -38,18 +36,18 @@ namespace PixelPort.Server.Controllers
             {
                 IEnumerable<ProductCharacteristic> characteristicsList = await _dbProductCharacteristic.GetAllAsync(pc => pc.ProductId == productId, ct: cancellationToken);
 
-                _logger.LogInformation($"Getting all characteristics by product {productId}");
+                _betterLog.WriteLog($"Getting all characteristics by product {productId}", "info");
 
                 return StatusCode(200, _mapper.Map<List<ProductCharacteristicResponseDTO>>(characteristicsList));
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Get all characteristics - Клиент отменил запрос");
+                _betterLog.WriteLog("Get all characteristics - Клиент отменил запрос", "error");
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Get all characteristics by product {productId} - {ex.Message}");
+                _betterLog.WriteLog($"Get all characteristics by product {productId} - {ex.Message}", "error");
 
                 return StatusCode(404);
             }
@@ -68,7 +66,7 @@ namespace PixelPort.Server.Controllers
         {
             if (characteristicId <= 0)
             {
-                _logger.LogInformation($"ERROR: Get Characteristic with Id = {characteristicId} by product {productId}");
+                _betterLog.WriteLog($"Get Characteristic with Id = {characteristicId} by product {productId}", "error");
 
                 return StatusCode(400);
             }
@@ -82,23 +80,23 @@ namespace PixelPort.Server.Controllers
 
                 if (characteristic == null) // Не найдена
                 {
-                    _logger.LogInformation($"ERROR: Get Characteristic with Id = {characteristicId} - NotFound by product {productId}");
+                    _betterLog.WriteLog($"Get Characteristic with Id = {characteristicId} - NotFound by product {productId}", "error");
 
                     return StatusCode(404);
                 }
 
-                _logger.LogInformation($"Getting Characteristic with Id = {characteristicId} by product {productId}");
+                _betterLog.WriteLog($"Getting Characteristic with Id = {characteristicId} by product {productId}", "info");
 
                 return StatusCode(200, _mapper.Map<ProductCharacteristicResponseDTO>(characteristic));
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Get Characteristic - Клиент отменил запрос");
+                _betterLog.WriteLog($"Get Characteristic - Клиент отменил запрос", "error");
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Get Characteristic by product {productId} - {ex.Message}");
+                _betterLog.WriteLog($"Get Characteristic by product {productId} - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -119,7 +117,7 @@ namespace PixelPort.Server.Controllers
             {
                 if (tempCreateCharacteristic == null) // Попытка создать пустую характеристику
                 {
-                    _logger.LogInformation($"ERROR: Create Characteristic - Empty Characteristic");
+                    _betterLog.WriteLog($"Create Characteristic - Empty Characteristic", "error");
 
                     return StatusCode(400);
                 }
@@ -128,7 +126,7 @@ namespace PixelPort.Server.Controllers
                     pc => pc.ProductId == productId && pc.CharacteristicName.ToLower() == tempCreateCharacteristic.CharacteristicName.ToLower(),
                     ct: cancellationToken) != null) // Попытка создать характеристику с уже существующим названием
                 {
-                    _logger.LogInformation($"ERROR: Create Characteristic - characteristic with same name");
+                    _betterLog.WriteLog($"Create Characteristic - characteristic with same name", "error");
 
                     return StatusCode(400, "Characteristic with that name already exeists!");
                 }
@@ -140,7 +138,7 @@ namespace PixelPort.Server.Controllers
                     var responseModel = await _dbProductCharacteristic.CreateAsync(model, ct: cancellationToken); // Создаём характеристику
                     var responseDto = _mapper.Map<ProductCharacteristicResponseDTO>(responseModel); // Маппим ответ
 
-                    _logger.LogInformation($"Creating Characteristic");
+                    _betterLog.WriteLog($"Creating Characteristic", "info");
 
                     return StatusCode(201, responseDto);
                 }
@@ -148,12 +146,12 @@ namespace PixelPort.Server.Controllers
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Create Characteristic - Клиент отменил запрос");
+                _betterLog.WriteLog($"Create Characteristic - Клиент отменил запрос", "error");
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Create Characteristic - {ex.Message}");
+                _betterLog.WriteLog($"Create Characteristic - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -170,7 +168,7 @@ namespace PixelPort.Server.Controllers
         {
             if (characteristicId <= 0)
             {
-                _logger.LogInformation($"ERROR: Delete characteristic with id <= 0 by product {productId}");
+                _betterLog.WriteLog($"Delete characteristic with id <= 0 by product {productId}", "error");
 
                 return StatusCode(400);
             }
@@ -180,25 +178,25 @@ namespace PixelPort.Server.Controllers
                 var result = await _dbProductCharacteristic.GetAsync(p => p.Id == characteristicId, ct: cancellationToken);
                 if (result == null) // Не найден
                 {
-                    _logger.LogInformation($"ERROR: Delete Characteristic with Id = {characteristicId} by product {productId}");
+                    _betterLog.WriteLog($"Delete Characteristic with Id = {characteristicId} by product {productId}", "error");
 
                     return StatusCode(404);
                 }
 
                 await _dbProductCharacteristic.RemoveAsync(result, ct: cancellationToken);
 
-                _logger.LogInformation($"Deleting Characteristic with Id = {characteristicId}");
+                _betterLog.WriteLog($"Deleting Characteristic with Id = {characteristicId}", "info");
 
                 return StatusCode(200);
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Delete Characteristic - Клиент отменил запрос");
+                _betterLog.WriteLog($"Delete Characteristic - Клиент отменил запрос", "error");
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Delete Characteristic with Id = {characteristicId} by product {productId} - {ex.Message}");
+                _betterLog.WriteLog($"Delete Characteristic with Id = {characteristicId} by product {productId} - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -221,8 +219,8 @@ namespace PixelPort.Server.Controllers
             {
                 if (updateTempCharacteristic == null || characteristicId != updateTempCharacteristic.Id) // Пустая характеристика или айди не равен переданному в теле запроса
                 {
-                    _logger.LogInformation($"ERROR: Update Characteristic with Id = {characteristicId} by product {productId} - Empty characteristic or id != characteristic.Id");
-
+                    _betterLog.WriteLog($"Update Characteristic with Id = {characteristicId} by product {productId} - Empty characteristic or id != characteristic.Id", "error");
+                    
                     return StatusCode(400);
                 }
 
@@ -238,18 +236,19 @@ namespace PixelPort.Server.Controllers
                 var responseModel = await _dbProductCharacteristic.UpdateCharacteristicAsync(existingCharacteristic, ct: cancellationToken); // Обновляем характеристику
                 var responseDto = _mapper.Map<ProductCharacteristicResponseDTO>(responseModel); // Маппим ответ
 
-                _logger.LogInformation($"Update Characteristic with Id = {characteristicId} by product {productId}");
+                _betterLog.WriteLog($"Update Characteristic with Id = {characteristicId} by product {productId}", "info");
 
                 return StatusCode(200, responseDto);
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Update Characteristic - Клиент отменил запрос");
+                _betterLog.WriteLog($"Update Characteristic - Клиент отменил запрос", "error");
+
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Update Characteristic with Id = {characteristicId} by product {productId} - {ex.Message}");
+                _betterLog.WriteLog($"Update Characteristic with Id = {characteristicId} by product {productId} - {ex.Message}", "error");
 
                 return StatusCode(500);
             }

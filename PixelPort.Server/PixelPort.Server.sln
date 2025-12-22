@@ -5,6 +5,8 @@ VisualStudioVersion = 17.8.34330.188
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PixelPort.Server", "PixelPort.Server\PixelPort.Server.csproj", "{D0CB34F2-CE38-491C-B6C3-A906208FFFFE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BetterLogs", "BetterLogs\BetterLogs.csproj", "{7EAC85CC-6D8F-457B-A5B0-73AAAD14B9A1}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{D0CB34F2-CE38-491C-B6C3-A906208FFFFE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D0CB34F2-CE38-491C-B6C3-A906208FFFFE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D0CB34F2-CE38-491C-B6C3-A906208FFFFE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7EAC85CC-6D8F-457B-A5B0-73AAAD14B9A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7EAC85CC-6D8F-457B-A5B0-73AAAD14B9A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7EAC85CC-6D8F-457B-A5B0-73AAAD14B9A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7EAC85CC-6D8F-457B-A5B0-73AAAD14B9A1}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

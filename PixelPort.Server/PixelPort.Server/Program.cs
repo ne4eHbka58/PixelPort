@@ -1,3 +1,4 @@
+using BetterLogs;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -8,10 +9,13 @@ using PixelPort.Server.Repository;
 using PixelPort.Server.Repository.IRepository;
 using PixelPort.Server.Services;
 using PixelPort.Server.Services.IServices;
-using System.Text;
+using System.Text; 
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Отключаем встроенное логирование
+builder.Logging.ClearProviders();
+builder.Logging.SetMinimumLevel(LogLevel.None);
 
 // Add services to the container.
 builder.Services.AddDbContext<PixelPortDbContext>(option =>
@@ -25,6 +29,14 @@ builder.Services.AddScoped<ICategoryRepository, CategoryRepository>();
 builder.Services.AddScoped<IManufacturerRepository, ManufacturerRepository>();
 builder.Services.AddScoped<IHashing, Hashing>();
 builder.Services.AddAutoMapper(typeof(MappingConfig));
+builder.Services.AddSingleton(sp =>{
+    string logdir = builder.Configuration.GetValue<string>("BetterLogsSettings:LogDirectory")!;
+    string filename = builder.Configuration.GetValue<string>("BetterLogsSettings:BaseFileName")!;
+    long filesizeMB = builder.Configuration.GetValue<long>("BetterLogsSettings:MaxFileSizeMB");
+
+    var betterLogger = new BetterLog(logdir, filename, filesizeMB);
+    return betterLogger;
+});
 
 builder.Services.AddCors(options =>
 {

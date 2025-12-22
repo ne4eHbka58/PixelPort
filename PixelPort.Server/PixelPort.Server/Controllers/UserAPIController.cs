@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using BetterLogs;
+using Microsoft.AspNetCore.Mvc;
 using PixelPort.Server.Models.Dto;
 using PixelPort.Server.Repository.IRepository;
 using System.Security.Claims;
@@ -10,12 +11,12 @@ namespace PixelPort.Server.Controllers
     public class UserAPIController : ControllerBase
     {
         private readonly IUserRepository _userRepo;
-        private readonly ILogger<UserAPIController> _logger;
+        private readonly BetterLog _betterLog;
 
-        public UserAPIController(IUserRepository userRepo, ILogger<UserAPIController> logger)
+        public UserAPIController(IUserRepository userRepo, BetterLog betterLog)
         {
             _userRepo = userRepo;
-            _logger = logger;
+            _betterLog = betterLog;
         }
 
         [HttpGet("getcurrentuser", Name = "GetCurrentUser")]
@@ -33,7 +34,7 @@ namespace PixelPort.Server.Controllers
 
                 if (string.IsNullOrEmpty(userIdString) || !int.TryParse(userIdString, out int userId))
                 {
-                    _logger.LogInformation($"ERROR: Getting current user - Invalid Token");
+                    _betterLog.WriteLog("Getting current user - Invalid Token", "error");
 
                     return StatusCode(401);
                 }
@@ -42,22 +43,22 @@ namespace PixelPort.Server.Controllers
 
                 if (user == null)
                 {
-                    _logger.LogInformation($"ERROR: Getting current user - Not Found with id = {userId}");
+                    _betterLog.WriteLog($"Getting current user - Not Found with id = {userId}", "error");
                     return StatusCode(404);
                 }
 
-                _logger.LogInformation($"Getting current user");
+                _betterLog.WriteLog("Getting current user", "info");
 
                 return StatusCode(200, user);
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Get Current User - Клиент отменил запрос");
+                _betterLog.WriteLog("Get Current User - Клиент отменил запрос", "error");
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Get Current User - {ex.Message}");
+                _betterLog.WriteLog($"Get Current User - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -75,9 +76,9 @@ namespace PixelPort.Server.Controllers
             {
                 var loginResponse = await _userRepo.Login(model, ct: cancellationToken);
 
-                if(loginResponse == null || string.IsNullOrEmpty(loginResponse.Token))
+                if (loginResponse == null || string.IsNullOrEmpty(loginResponse.Token))
                 {
-                    _logger.LogInformation($"ERROR: Login - Login or password is incorrect");
+                    _betterLog.WriteLog("Login - Login or password is incorrect", "error");
 
                     return StatusCode(401, "Login or password is incorrect");
                 }
@@ -92,18 +93,20 @@ namespace PixelPort.Server.Controllers
                     Path = "/"
                 });
 
-                _logger.LogInformation($"Login with email - {loginResponse.User.Email}");
+                _betterLog.WriteLog($"Login with email - {loginResponse.User.Email}", "info");
                 return StatusCode(200, loginResponse);
 
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Login - Клиент отменил запрос");
+                _betterLog.WriteLog("Login - Клиент отменил запрос", "error");
+
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Login - {ex.Message}");
+                _betterLog.WriteLog($"Login - {ex.Message}", "error");
+
 
                 return StatusCode(500);
             }
@@ -121,14 +124,15 @@ namespace PixelPort.Server.Controllers
                 //Очистка cookie
                 Response.Cookies.Delete("auth_token");
 
-                _logger.LogInformation($"Logging out");
+                _betterLog.WriteLog("Logging out", "info");
+
 
                 return StatusCode(200);
             }
 
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Logout - {ex.Message}");
+                _betterLog.WriteLog($"Logout - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -149,7 +153,8 @@ namespace PixelPort.Server.Controllers
                 {
                     var user = await _userRepo.GetUser(userId, ct: cancellationToken);
 
-                    _logger.LogInformation($"Checking Auth");
+                    _betterLog.WriteLog("Checking Auth", "info");
+
 
                     return StatusCode(200, new { authenticated = true, userDto = user });
                 }
@@ -158,12 +163,13 @@ namespace PixelPort.Server.Controllers
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: CheckAuth - Клиент отменил запрос");
+                _betterLog.WriteLog("CheckAuth - Клиент отменил запрос", "error");
+
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: CheckAuth - {ex.Message}");
+                _betterLog.WriteLog($"CheckAuth - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
@@ -182,7 +188,7 @@ namespace PixelPort.Server.Controllers
 
                 if (!isUserEmailUnique)
                 {
-                    _logger.LogInformation($"ERROR: Register - User with this email already exists");
+                    _betterLog.WriteLog("Register - User with this email already exists", "error");
                     return StatusCode(400, "User with this email already exists");
                 }
 
@@ -190,21 +196,21 @@ namespace PixelPort.Server.Controllers
 
                 if (user == null)
                 {
-                    _logger.LogInformation($"ERROR: Register");
+                    _betterLog.WriteLog("Ошибка при регистрации - user == null", "error");
                     return StatusCode(400);
                 }
 
-                _logger.LogInformation($"Registering new user with email - {user.Email}");
+                _betterLog.WriteLog($"Registering new user with email - {user.Email}", "info");
                 return StatusCode(201);
             }
             catch (OperationCanceledException)
             {
-                _logger.LogInformation("ERROR: Register - Клиент отменил запрос");
+                _betterLog.WriteLog("Register - Клиент отменил запрос", "error");
                 return StatusCode(499); // Клиент отменил запрос
             }
             catch (Exception ex)
             {
-                _logger.LogInformation($"ERROR: Register - {ex.Message}");
+                _betterLog.WriteLog($"Register - {ex.Message}", "error");
 
                 return StatusCode(500);
             }
